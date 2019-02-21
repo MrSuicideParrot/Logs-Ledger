@@ -1,8 +1,7 @@
-package pt.up.fc.dcc.sds.group.a.consensus;
+package pt.up.fc.dcc.sds.group.a.blockchain;
 
 import pt.up.fc.dcc.sds.group.a.tools.Sha256;
 
-import java.nio.ByteBuffer;
 import java.time.Instant;
 
 public abstract class Block {
