@@ -25,3 +25,6 @@ hs_err_pid*
 \.idea/
 
 *.iml
+
+#ignore maven generated files
+src/pt/up/fc/dcc/sds/group/a/network/grpc/target/
