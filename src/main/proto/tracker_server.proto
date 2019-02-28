@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pt.up.fc.dcc.ssd.a.tracker";
+option java_outer_classname = "TrackService";
+
+service TrackService {
+    rpc GetSomePeers(Empty) returns (stream Peer) {}
+
+    rpc Ping(Empty) returns (Empty) {}
+
+}
+
+message Empty{
+
+}
+
+message Peer{
+    int32 ipv4 = 1;
+}
