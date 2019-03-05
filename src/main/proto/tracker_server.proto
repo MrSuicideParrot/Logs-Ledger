@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "pt.up.fc.dcc.ssd.a.tracker";
-option java_outer_classname = "TrackService";
+option java_outer_classname = "Track";
 
 service TrackService {
     rpc GetSomePeers(Empty) returns (stream Peer) {}
