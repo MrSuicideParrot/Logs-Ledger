@@ -16,5 +16,5 @@ message Empty{
 }
 
 message Peer{
-    int32 ipv4 = 1;
+    fixed32 ipv4 = 1;
 }

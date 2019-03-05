@@ -1,0 +1,39 @@
+syntax = proto3;
+
+option java_multiple_files = true;
+option java_package = "pt.up.fc.dcc.ssd.a.kademlia";
+option java_outer_classname = "KademliaProtocol";
+
+service KademliaService{
+	rpc FindNode(NodeID) returns () {}
+	rpc FindValue() returns () {}
+	rpc Store(PackToStore) returns () {}
+	rpc Ping(Empty) returns () {}
+}
+
+message Empty{
+
+}
+
+message PackToStore{
+	bytes key = 1;
+	bytes value = 2;
+}
+
+/**
+In all RPCs, the recipient must echo a 160-bit random RPC ID, which pro-
+vides some resistance to address forgery. pings can also be piggy-backed on
+RPC replies for the RPC recipient to obtain additional assurance of the sender’s
+network address.
+*/
+
+message NodeID{
+	bytes nodeID = 1;
+}
+
+message Node{
+	fixed32 ipv4 = 1;
+	uint32 port = 2;
+	bytes nodeID = 3;
+
+}
