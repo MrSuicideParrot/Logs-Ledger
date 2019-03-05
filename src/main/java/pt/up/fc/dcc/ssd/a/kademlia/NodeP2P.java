@@ -3,9 +3,9 @@ package pt.up.fc.dcc.ssd.a.kademlia;
 class NodeP2P {
     private int ip;
     private int port;
-    private int nodeID;
+    private byte[] nodeID;
 
-    public NodeP2P(int ip, int port, int nodeID) {
+    public NodeP2P(int ip, int port, byte[] nodeID) {
         this.ip = ip;
         this.port = port;
         this.nodeID = nodeID;
@@ -20,7 +20,7 @@ class NodeP2P {
         return port;
     }
 
-    public int getNodeID() {
+    public byte[] getNodeID() {
         return nodeID;
     }
 }

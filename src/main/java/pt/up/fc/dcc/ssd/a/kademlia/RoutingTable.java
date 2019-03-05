@@ -17,4 +17,9 @@ public class RoutingTable {
         }
     }
 
+    public static int getDistance(byte[] a1, byte[] a2){
+        //byte[] dst
+
+    }
+
 }
