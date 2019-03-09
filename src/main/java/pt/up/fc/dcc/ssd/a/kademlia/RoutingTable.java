@@ -1,25 +1,23 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
 public class RoutingTable {
-    RoutingNode root;
+    KBucket[] buckets;
 
     RoutingTable(){
-        root = new KBucket(0,0);
-    }
+        buckets = new KBucket[Config.id_length];
 
-    boolean addP2PNode(NodeP2P newNodeP2P){
-        try {
-            root = root.addP2PNode(newNodeP2P);
-            return true;
-        }
-        catch (Exception e){
-            return false;
+        for(int i = 0; i < Config.id_length; ++i){
+            buckets[i] = new KBucket(i);
         }
     }
 
-    public static int getDistance(byte[] a1, byte[] a2){
-        //byte[] dst
+    void addP2PNode(Node newNode){
+        int bucketIndex = getBucketIndex(newNode.getId());
+        buckets[bucketIndex].add(newNode);
+    }
 
+    int getBucketIndex(byte[] insertID){
+        return Node.getDistanceID(Config.myID, insertID);
     }
 
 }
