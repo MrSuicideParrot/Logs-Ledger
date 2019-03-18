@@ -1,14 +1,14 @@
-syntax = proto3;
+syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "pt.up.fc.dcc.ssd.a.kademlia";
 option java_outer_classname = "KademliaProtocol";
 
 service KademliaService{
-	rpc FindNode(NodeID) returns () {}
-	rpc FindValue() returns () {}
-	rpc Store(PackToStore) returns () {}
-	rpc Ping(Empty) returns () {}
+	rpc FindNode(NodeID) returns (Empty) {}
+	rpc FindValue(Empty) returns (Empty) {}
+	rpc Store(PackToStore) returns (Empty) {}
+	rpc Ping(Empty) returns (Empty) {}
 }
 
 message Empty{
