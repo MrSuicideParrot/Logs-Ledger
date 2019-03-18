@@ -7,6 +7,10 @@ option java_outer_classname = "Track";
 service TrackService {
     rpc GetSomePeers(Empty) returns (stream Peer) {}
 
+    rpc IdRequest(Peer) returns (challenge) {}
+
+    rpc GetAnswer(challengeAnswer) returns (challengeValidation) {}
+
     rpc Ping(Empty) returns (Empty) {}
 
 }
@@ -17,4 +21,18 @@ message Empty{
 
 message Peer{
     fixed32 ipv4 = 1;
+}
+
+message challenge{
+    int32 zeros = 1;
+}
+
+message challengeAnswer{
+    fixed32 ipv4 = 1;
+    bytes id = 2;
+    bytes hash = 3;
+}
+
+message challengeValidation{
+    bool answer = 1;
 }
