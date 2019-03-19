@@ -1,30 +1,39 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 class KBucket {
-    private Queue<Node> bucket;
+    private LinkedList<Node> bucket;
 
     KBucket(int distance){
-        bucket = new ArrayBlockingQueue<Node>(Config.k);
+        bucket = new LinkedList<Node>();
     }
 
 
     boolean add(Node newNode){
-        if(bucket.contains(newNode)){
-
+        int i;
+        if((i = bucket.indexOf(newNode)) != -1){
+            Node node = bucket.remove(i);
+            node.seenNow();
+            bucket.addLast(node);
         }
         else{
-            try{
-                bucket.add(newNode);
+            if(bucket.size() < Config.k) { //TODO Confirmar se é isto
+                newNode.seenNow();
+                bucket.addLast(newNode);
             }
-            catch (IllegalStateException e){
-
+            else{
+                // TODO pingar primeiro e se não mete  lo fora
             }
         }
         return true;
 
+    }
+
+    LinkedList<Node> getBucket(){
+        return bucket;
     }
 
     boolean isEmpty(){
