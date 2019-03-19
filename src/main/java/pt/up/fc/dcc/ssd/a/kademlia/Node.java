@@ -1,8 +1,10 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.BitSet;
 
-public class Node {
+public class Node{
     private int ip;
     private int port;
     private byte[] id;
@@ -24,6 +26,15 @@ public class Node {
     byte[] getId(){
         return id;
     }
+
+    void findNode(){
+
+    }
+
+    void findValue(){
+
+    }
+
 
     static byte[] xorID(byte[] id1,byte[] id2){
         byte[] result = new byte[Config.id_length/8];
@@ -58,5 +69,17 @@ public class Node {
 
     public int getPort() {
         return port;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        return Arrays.equals(this.id,((Node)o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return ByteBuffer.wrap(this.id).getInt();
     }
 }

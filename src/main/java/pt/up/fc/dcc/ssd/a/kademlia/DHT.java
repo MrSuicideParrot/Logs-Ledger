@@ -5,6 +5,11 @@ import java.util.LinkedList;
 import java.util.Set;
 
 public class DHT {
+
+    enum IterateType{
+        FINDVALUE, STOREVALUE, FINDNODE
+    }
+
     private static RoutingTable rt;
     /*
     The most important procedure a Kademlia participant must perform is to
@@ -16,7 +21,7 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
     }
 
-    private void iterate(byte[] target){
+    private void iterate(byte[] target, IterateType iter){
         Set<Node> networkNode = new HashSet<Node>();
 
         LinkedList<Node> sl = rt.getClosestContact(target, (HashSet<Node>) networkNode);
@@ -34,9 +39,41 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
         Node closestNode = sl.peekFirst();
 
         while(true){
+            for(Node i: sl){
+
+                if(networkNode.contains(i))
+                    continue;
+
+                switch (iter){
+                    case FINDVALUE:
+                        i.findValue();
+                        networkNode.add(i);
+                        break;
+
+                    case STOREVALUE:
+                    case FINDNODE:
+                        i.findNode();
+                        networkNode.add(i);
+                        break;
+
+                     default:
+                         System.err.println("Erro");
+
+                }
+            }
+
+            /* Processar respostas*/
+
+
+
+
+            /* verificar se temos um novo nó */
+
 
 
         }
+
+
 
 /*
 for {
