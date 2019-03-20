@@ -2,7 +2,6 @@ package pt.up.fc.dcc.ssd.a.kademlia;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 public class Challenge {
     private int zeros;
@@ -11,29 +10,44 @@ public class Challenge {
         this.zeros = zeros;
     }
 
-    public idHashPair findID(){
+    public byte[] findID(){
         SecureRandom random = new SecureRandom();
-        boolean found = false;
-        byte id[] = new byte[160 / 8];
-        byte hash[] = new byte[160 / 8];
-        while (!found) {
+        byte[] id = new byte[160 / 8];
+        byte[] hash = new byte[160 / 8];
+        while (countZeros(hash) != this.zeros) {
             random.nextBytes(id);
-            try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-1");
-                digest.reset();
-                digest.update(id);
-                hash = digest.digest();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            found = true;
-            for (byte b : Arrays.copyOfRange(hash, 0, this.zeros)) {
-                if (b != 0) {
-                    found = false;
+            hash = genHash(id);
+        }
+        return id;
+    }
+
+    private byte[] genHash(byte[] id){
+        byte[] hash = new byte[160/8];
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.reset();
+            digest.update(id);
+            hash = digest.digest();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return hash;
+    }
+    
+    private int countZeros(byte[] hash){
+        int count = 0;
+        for(int i = 0; i < hash.length; i++){
+            for(int j = 7; j >= 0; j--) {
+                if ((hash[i] & (1 << j)) != 0){
+                    count++;
+                } else {
+                    return count;
                 }
             }
         }
-        return new idHashPair(id, hash);
+        return count;
     }
 
     private String bytesToHex(byte[] hashInBytes) {
@@ -47,9 +61,11 @@ public class Challenge {
     }
 
     public void debug(){
-        idHashPair test = findID();
-        System.out.println(bytesToHex(test.id));
-        System.out.println(bytesToHex(test.hash));
+        byte[] id = findID();
+        byte[] hash = genHash(id);
+
+        System.out.println(bytesToHex(id));
+        System.out.println(bytesToHex(hash));
     }
 
 }
