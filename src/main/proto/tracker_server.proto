@@ -4,6 +4,8 @@ option java_multiple_files = true;
 option java_package = "pt.up.fc.dcc.ssd.a.tracker";
 option java_outer_classname = "Track";
 
+import "type.proto";
+
 service TrackService {
     rpc GetSomePeers(Empty) returns (stream Peer) {}
 
@@ -12,10 +14,6 @@ service TrackService {
     rpc GetAnswer(challengeAnswer) returns (challengeValidation) {}
 
     rpc Ping(Empty) returns (Empty) {}
-
-}
-
-message Empty{
 
 }
 

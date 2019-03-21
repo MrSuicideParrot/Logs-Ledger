@@ -4,18 +4,17 @@ option java_multiple_files = true;
 option java_package = "pt.up.fc.dcc.ssd.a.kademlia";
 option java_outer_classname = "KademliaProtocol";
 
+import "type.proto";
+
 service KademliaService{
-	rpc FindNode(NodeID) returns (Empty) {}
-	rpc FindValue(Empty) returns (Empty) {}
-	rpc Store(PackToStore) returns (Empty) {}
+	rpc FindNode(NodeIDM) returns (NodeM) {}
+	rpc FindValue(ValueIDM) returns (NodeM) {}
+	rpc Store(PackToStoreM) returns (Empty) {}
 	rpc Ping(Empty) returns (Empty) {}
 }
 
-message Empty{
 
-}
-
-message PackToStore{
+message PackToStoreM{
 	bytes key = 1;
 	bytes value = 2;
 }
@@ -27,11 +26,15 @@ RPC replies for the RPC recipient to obtain additional assurance of the senderâ€
 network address.
 */
 
-message NodeID{
+message NodeIDM{
 	bytes nodeID = 1;
 }
 
-message Node{
+message ValueIDM{
+	bytes valueID = 1;
+}
+
+message NodeM{
 	fixed32 ipv4 = 1;
 	uint32 port = 2;
 	bytes nodeID = 3;
