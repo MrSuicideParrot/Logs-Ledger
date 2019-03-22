@@ -3,7 +3,7 @@ package pt.up.fc.dcc.ssd.a.kademlia;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-public class RoutingTable {
+class RoutingTable {
     KBucket[] buckets;
 
     RoutingTable(){
