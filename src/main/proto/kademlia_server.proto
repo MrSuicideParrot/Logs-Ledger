@@ -17,6 +17,7 @@ service KademliaService{
 message PackToStoreM{
 	bytes key = 1;
 	bytes value = 2;
+	bytes myNodeID = 3;
 }
 
 /**
@@ -28,10 +29,12 @@ network address.
 
 message NodeIDM{
 	bytes nodeID = 1;
+	bytes myNodeID = 2;
 }
 
 message ValueIDM{
 	bytes valueID = 1;
+	bytes myNodeID = 2;
 }
 
 message NodeM{

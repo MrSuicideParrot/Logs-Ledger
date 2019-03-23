@@ -1,5 +1,9 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
+import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
+import pt.up.fc.dcc.ssd.a.node.KademeliaService;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -9,10 +13,14 @@ public class Node{
     private int port;
     private byte[] id;
     private long lastSeen;
+    private ManagedChannelBuilder chanelBuilder;
 
-    Node(byte[] id){
+    Node(byte[] id, String host, int port){
         this.id = id;
         this.seenNow();
+        this.port = port;
+        chanelBuilder = ManagedChannelBuilder.forAddress(host, port);
+        chanelBuilder.usePlaintext();
     }
 
     void seenNow(){
@@ -28,7 +36,8 @@ public class Node{
     }
 
     void findNode(){
-
+        Channel channel = chanelBuilder.build();
+        KademliaServiceGrpc.KademliaServiceStub asyncStub = KademliaServiceGrpc.newStub(channel);
     }
 
     void findValue(){
