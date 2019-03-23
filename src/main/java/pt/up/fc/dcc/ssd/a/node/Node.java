@@ -4,33 +4,45 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import pt.up.fc.dcc.ssd.a.kademlia.DHT;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
 public class Node {
-    byte[] nodeID;
-    InetAddress myIP;
-    DHT kadmelia;
-    Server server;
+    final static int port = 34832;
+    private byte[] nodeID;
+    private InetAddress myIP;
+    private DHT kadmelia;
+    private ServerBuilder serverBuilder;
+    private Server server;
 
     Node(){
         myIP = getMyIP();
+        serverBuilder = ServerBuilder.forPort(port);
     }
 
-    void start(){
+    void start() throws IOException {
         nodeID = initialize();
-        //ServerBuilder.addService();
 
+        /** Add services **/
+        serverBuilder.addService(new KademeliaService(this.kadmelia));
+
+        server = serverBuilder.build();
+        server.start();
     }
 
-    public static void main(String[] args){
-        Node no = new Node();
-        no.start();
-
+    private void blockUntilShutdown() throws InterruptedException {
+        if (server != null) {
+            server.awaitTermination();
+        }
     }
 
+    /**
+     * Contacta bootstrap node
+     * @return id do no
+     */
     byte[] initialize(){
         return null;
     }
@@ -52,4 +64,10 @@ public class Node {
         return null;
     }
 
+    public static void main(String[] args) throws Exception{
+        Node no = new Node();
+        no.start();
+        no.blockUntilShutdown();
+
+    }
 }

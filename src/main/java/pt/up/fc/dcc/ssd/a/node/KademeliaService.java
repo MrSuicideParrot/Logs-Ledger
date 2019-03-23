@@ -28,7 +28,7 @@ public class KademeliaService extends KademliaServiceGrpc.KademliaServiceImplBas
 
     @Override
     public void ping(Type.Empty request, StreamObserver<Type.Empty> responseObserver) {
-        responseObserver.onNext(new Type.Empty());
+        responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
     }
 }
