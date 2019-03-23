@@ -1,9 +1,10 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
+import com.google.protobuf.ByteString;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
-import pt.up.fc.dcc.ssd.a.node.KademeliaService;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -35,9 +36,20 @@ public class Node{
         return id;
     }
 
-    void findNode(){
-        Channel channel = chanelBuilder.build();
-        KademliaServiceGrpc.KademliaServiceStub asyncStub = KademliaServiceGrpc.newStub(channel);
+    void findNode(byte[] target){
+        try {
+            Channel channel = chanelBuilder.build();
+            KademliaServiceGrpc.KademliaServiceStub asyncStub = KademliaServiceGrpc.newStub(channel);
+            asyncStub.findNode(NodeIDM.newBuilder()
+                    .setNodeID(ByteString.copyFrom(target))
+                    .setMyNodeID(ByteString.copyFrom(pt.up.fc.dcc.ssd.a.node.Node.getIP(),"UTF-8"))
+                    .build());
+        }
+        catch (UnsupportedEncodingException e){
+            System.err.println("Colocaste mal o encoding!");
+        }
+
+
     }
 
     void findValue(){

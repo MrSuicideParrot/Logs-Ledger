@@ -13,7 +13,7 @@ import java.net.SocketException;
 public class Node {
     final static int port = 34832;
     private byte[] nodeID;
-    private InetAddress myIP;
+    static InetAddress myIP;
     private DHT kadmelia;
     private ServerBuilder serverBuilder;
     private Server server;
@@ -61,6 +61,10 @@ public class Node {
         catch (SocketException e){
 
         }*/
+        return null;
+    }
+
+    public static String getIP(){
         return null;
     }
 
