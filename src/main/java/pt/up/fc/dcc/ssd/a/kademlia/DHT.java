@@ -1,5 +1,6 @@
 package pt.up.fc.dcc.ssd.a.kademlia;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -38,6 +39,7 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
         Node closestNode = sl.peekFirst();
 
+        LinkedList<NodeM> respostas = new LinkedList<NodeM>();
         while(true){
             for(Node i: sl){
 
@@ -46,13 +48,13 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
                 switch (iter){
                     case FINDVALUE:
-                        i.findValue();
+                        respostas.add(i.findValue(target));
                         networkNode.add(i);
                         break;
 
                     case STOREVALUE:
                     case FINDNODE:
-                        i.findNode();
+                        respostas.add(i.findNode(target));
                         networkNode.add(i);
                         break;
 
@@ -64,10 +66,24 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
             /* Processar respostas*/
 
+            for (NodeM i: respostas) {
+                if(i != null){
+                    Node a = new Node(i);
+                    rt.addP2PNode(a);
+                    if(!sl.contains(a)){
+                        sl.add(a);
+                    }
+                }
+            }
 
+            Collections.sort(sl, new SortNode(target));
 
-
-            /* verificar se temos um novo nó */
+            if(closestNode.equals(sl.peekFirst())){
+                
+            }
+            else{
+                closestNode = sl.peekFirst();
+            }
 
 
 

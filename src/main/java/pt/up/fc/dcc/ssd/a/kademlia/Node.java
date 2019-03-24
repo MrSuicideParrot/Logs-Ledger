@@ -3,6 +3,7 @@ package pt.up.fc.dcc.ssd.a.kademlia;
 import com.google.protobuf.ByteString;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -24,6 +25,12 @@ public class Node{
         chanelBuilder.usePlaintext();
     }
 
+    Node(NodeM noGRPC){
+        this.id = noGRPC.getNodeID().toByteArray();
+        this.port = noGRPC.getPort();
+        this.ip = noGRPC.getIpv4();
+    }
+
     void seenNow(){
         this.lastSeen = System.currentTimeMillis();
     }
@@ -36,24 +43,31 @@ public class Node{
         return id;
     }
 
-    void findNode(byte[] target){
+    NodeM findNode(byte[] target){
         try {
             Channel channel = chanelBuilder.build();
-            KademliaServiceGrpc.KademliaServiceStub asyncStub = KademliaServiceGrpc.newStub(channel);
-            asyncStub.findNode(NodeIDM.newBuilder()
+            KademliaServiceGrpc.KademliaServiceBlockingStub stub = KademliaServiceGrpc.newBlockingStub(channel);
+            NodeM response = stub.findNode(NodeIDM.newBuilder()
                     .setNodeID(ByteString.copyFrom(target))
                     .setMyNodeID(ByteString.copyFrom(pt.up.fc.dcc.ssd.a.node.Node.getIP(),"UTF-8"))
                     .build());
+
+            this.seenNow();
+            return response;
         }
         catch (UnsupportedEncodingException e){
             System.err.println("Colocaste mal o encoding!");
+            return null;
         }
-
+        catch (StatusRuntimeException e){
+            //TODO tirar o no
+            return null;
+        }
 
     }
 
-    void findValue(){
-
+    NodeM findValue(byte[] target){
+        return null;
     }
 
 
@@ -92,7 +106,13 @@ public class Node{
         return port;
     }
 
-
+    NodeM toNodeM(){
+        return NodeM.newBuilder()
+                .setIpv4(ip)
+                .setPort(port)
+                .setNodeID(ByteString.copyFrom(id))
+                .build();
+    }
 
     @Override
     public boolean equals(Object o) {

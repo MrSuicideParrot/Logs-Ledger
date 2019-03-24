@@ -9,7 +9,7 @@ import "type.proto";
 service KademliaService{
 	rpc FindNode(NodeIDM) returns (NodeM) {}
 	rpc FindValue(ValueIDM) returns (NodeM) {}
-	rpc Store(PackToStoreM) returns (Empty) {}
+	rpc Store(PackToStoreM) returns (NodeM) {}
 	rpc Ping(Empty) returns (Empty) {}
 }
 
