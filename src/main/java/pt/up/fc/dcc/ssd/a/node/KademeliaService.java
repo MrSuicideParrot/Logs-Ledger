@@ -22,7 +22,7 @@ public class KademeliaService extends KademliaServiceGrpc.KademliaServiceImplBas
     }
 
     @Override
-    public void store(PackToStoreM request, StreamObserver<Type.Empty> responseObserver) {
+    public void store(PackToStoreM request, StreamObserver<NodeM> responseObserver) {
         super.store(request, responseObserver);
     }
 
