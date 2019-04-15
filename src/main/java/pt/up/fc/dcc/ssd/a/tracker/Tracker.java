@@ -1,20 +1,27 @@
 package pt.up.fc.dcc.ssd.a.tracker;
-/*
+
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import pt.up.fc.dcc.ssd.a.utils.IPGetter;
+
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class Tracker {
+    final static int port = 34832;
+    static String myIP;
 
-    private final Server server;
+    //private final Server server;
 
     public Tracker(){
-        server = ServerBuilder.addService(new TrackerService()).build();
+        myIP = IPGetter.getIP();
+
+        //server = ServerBuilder.addService(new TrackerService()).build();
     }
 
-    public void start() throws IOException {
+    /*public void start() throws IOException {
         server.start();
-        logger.info("Server started, listening on " + port);
+        Logger.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -36,15 +43,15 @@ public class Tracker {
         if (server != null) {
             server.awaitTermination();
         }
-    }
+    }*/
 
     public static void main(String [] args) throws Exception  {
         Tracker server = new Tracker();
-        server.start();
-        server.blockUntilShutdown();
+        System.out.println(server.myIP);
+        //server.start();
+        //server.blockUntilShutdown();
 
     }
 
 
 }
-*/

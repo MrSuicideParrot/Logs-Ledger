@@ -1,4 +1,4 @@
-package pt.up.fc.dcc.ssd.a.kademlia;
+package pt.up.fc.dcc.ssd.a.utils;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -13,7 +13,9 @@ public class Challenge {
     public byte[] findID(){
         SecureRandom random = new SecureRandom();
         byte[] id = new byte[160 / 8];
-        byte[] hash = new byte[160 / 8];
+        byte[] hash;
+        random.nextBytes(id);
+        hash = genHash(id);
         while (countZeros(hash) != this.zeros) {
             random.nextBytes(id);
             hash = genHash(id);
@@ -40,11 +42,9 @@ public class Challenge {
         int count = 0;
         for(int i = 0; i < hash.length; i++){
             for(int j = 7; j >= 0; j--) {
-                if ((hash[i] & (1 << j)) != 0){
+                if ((hash[i] & (1 << j)) != 0)
                     return count;
-                } else {
-                    count++;
-                }
+                count++;
             }
         }
         return count;

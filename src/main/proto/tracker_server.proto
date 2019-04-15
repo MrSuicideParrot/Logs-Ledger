@@ -2,11 +2,11 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "pt.up.fc.dcc.ssd.a.tracker";
-option java_outer_classname = "Track";
+//option java_outer_classname = "Track";
 
 import "type.proto";
 
-service TrackService {
+service TrackerServer {
     rpc GetSomePeers(Empty) returns (stream Peer) {}
 
     rpc IdRequest(Peer) returns (challenge) {}
@@ -28,7 +28,6 @@ message challenge{
 message challengeAnswer{
     fixed32 ipv4 = 1;
     bytes id = 2;
-    bytes hash = 3;
 }
 
 message challengeValidation{
