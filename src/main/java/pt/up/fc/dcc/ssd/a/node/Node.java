@@ -1,24 +1,17 @@
 package pt.up.fc.dcc.ssd.a.node;
 
-import com.google.protobuf.Empty;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
-
-import pt.up.fc.dcc.ssd.a.tracker.NodeService;
-import pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 
 import pt.up.fc.dcc.ssd.a.kademlia.DHT;
+import pt.up.fc.dcc.ssd.a.tracker.*;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.IPGetter;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 
 public class Node {
     final static int port = 34832;
@@ -57,7 +50,22 @@ public class Node {
      * @return id do no
      */
     byte[] initialize(){
-        return new NodeService(myIP,"localhost",port+1).getNodeId();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",port+1).usePlaintext().build();
+        TrackerServerGrpc.TrackerServerBlockingStub blockingStub = TrackerServerGrpc.newBlockingStub(channel);
+
+        challenge zeros = blockingStub.idRequest(empty.newBuilder().build());
+
+        byte[] id = new Challenge(zeros.getZeros()).findID();
+
+        challengeValidation answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
+
+        while(!answer.getAnswer()){
+            id = new Challenge(zeros.getZeros()).findID();
+
+            answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
+        }
+
+        return id;
     }
 
 //    static InetAddress getMyIP(){
@@ -77,9 +85,6 @@ public class Node {
 //        return null;
 //    }
 
-    public static String getIP(){
-        return null;
-    }
 
     public static void main(String[] args) throws Exception{
         Node no = new Node();
