@@ -30,3 +30,6 @@ hs_err_pid*
 src/pt/up/fc/dcc/sds/group/a/network/grpc/target/
 
 target/
+privKey\.der
+
+pubKey\.der

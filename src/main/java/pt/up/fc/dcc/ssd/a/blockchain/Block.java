@@ -1,6 +1,7 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
 import com.google.protobuf.ByteString;
+import pt.up.fc.dcc.ssd.a.Config;
 
 class Block {
     private BlockType.Builder blockBuilder;
