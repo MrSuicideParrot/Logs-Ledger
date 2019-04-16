@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pt.up.fc.dcc.ssd.a.blockchain";
+option java_outer_classname = "BlockChainProtocol";
+
+import "type.proto";
+
+service BlockChainService{
+    rpc GetMaxBlockIndex(Empty) returns (BlockID){}
+    rpc GetBlockHash(BlockID) returns (BlockHash){}
+    rpc NewLog(LogType) returns (Empty) {}
+}
+
+message LogType{
+    bytes data = 1;
+    bytes assin = 2;
+}
+
+message BlockType{
+    bytes hashParent = 1;
+    int64 index = 2;
+    int64 timestamp = 3;
+    repeated LogType logs = 4;
+    bytes assin = 5;
+    int64 nonce = 6;
+    bytes hash = 7;
+}
+
+message BlockID{
+    int64 index = 1;
+}
+
+message BlockHash{
+    bytes blockHash = 1;
+    bytes parentHash = 2;
+}

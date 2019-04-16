@@ -39,7 +39,6 @@ public class SecureModule {
             {
                 PublicKey pub = keys.getPublic();
                 FileOutputStream out = new FileOutputStream(Config.pubKeyFile);
-                System.out.println(pub.getFormat());
                 out.write(pub.getEncoded());
                 out.close();
             }
