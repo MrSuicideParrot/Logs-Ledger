@@ -26,6 +26,13 @@
             <artifactId>grpc-stub</artifactId>
             <version>1.19.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.61</version>
+        </dependency>
+
     </dependencies>
 
     <build>

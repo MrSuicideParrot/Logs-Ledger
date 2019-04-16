@@ -1,7 +1,7 @@
 package pt.up.fc.dcc.ssd.a.tracker;
 
 import io.grpc.stub.StreamObserver;
-
+/*
 class TrackerService extends pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc.TrackerServerImplBase {
     TrackerService(){
 
@@ -16,4 +16,4 @@ class TrackerService extends pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc.Tracke
     public void idRequest(Peer request, StreamObserver<challenge> responseObserver){
         super.idRequest(request,responseObserver);
     }
-}
+}*/
