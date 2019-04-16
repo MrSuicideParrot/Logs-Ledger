@@ -23,7 +23,7 @@ public class Challenge {
         return id;
     }
 
-    private byte[] genHash(byte[] id){
+    public static byte[] genHash(byte[] id){
         byte[] hash = new byte[160/8];
 
         try {
@@ -38,7 +38,7 @@ public class Challenge {
         return hash;
     }
     
-    private int countZeros(byte[] hash){
+    public static int countZeros(byte[] hash){
         int count = 0;
         for(int i = 0; i < hash.length; i++){
             for(int j = 7; j >= 0; j--) {
@@ -50,7 +50,7 @@ public class Challenge {
         return count;
     }
 
-    private String bytesToHex(byte[] hashInBytes) {
+    public static String bytesToHex(byte[] hashInBytes) {
 
         StringBuilder sb = new StringBuilder();
         for (byte b : hashInBytes) {

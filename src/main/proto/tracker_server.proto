@@ -9,13 +9,15 @@ import "type.proto";
 service TrackerServer {
     rpc GetSomePeers(Empty) returns (stream Peer) {}
 
-    rpc IdRequest(Peer) returns (challenge) {}
+    rpc IdRequest(empty) returns (challenge) {}
 
     rpc GetAnswer(challengeAnswer) returns (challengeValidation) {}
 
     rpc Ping(Empty) returns (Empty) {}
 
 }
+
+message empty{}
 
 message Peer{
     fixed32 ipv4 = 1;
@@ -26,7 +28,7 @@ message challenge{
 }
 
 message challengeAnswer{
-    fixed32 ipv4 = 1;
+    string ipv4 = 1;
     bytes id = 2;
 }
 
