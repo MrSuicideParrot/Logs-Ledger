@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.node.Signable;
 
 public class LogBuilder implements Signable {
-    private LogType pLog;
     private LogType.Builder log_builder;
 
     LogBuilder(byte[] data){
@@ -14,12 +13,10 @@ public class LogBuilder implements Signable {
 
         data_builder.setData(ByteString.copyFrom(data));
         data_builder.setTimestamp(System.currentTimeMillis() / 1000L);
-
-        pLog = null;
     }
 
-    public LogType getProtoType(){
-        return pLog;
+    public LogType build(){
+        return  log_builder.build();
     }
 
     @Override
@@ -30,6 +27,5 @@ public class LogBuilder implements Signable {
     @Override
     public void setSignature(byte[] signature) {
         log_builder.setAssin(ByteString.copyFrom(signature));
-        pLog = log_builder.build();
     }
 }

@@ -28,9 +28,9 @@ class BlockBuilder implements Signable {
 
     }
 
-    boolean addLog(LogBuilder newLog){
+    boolean addLog(LogType newLog){
         if(indexLog < Config.maxLogs){
-            dataBuilder.addLogs(newLog.getProtoType());
+            dataBuilder.addLogs(newLog);
             ++indexLog;
             return true;
         }
@@ -55,6 +55,11 @@ class BlockBuilder implements Signable {
         catch (NoSuchAlgorithmException e){
             return null;
         }
+    }
+
+    BlockType build(){
+        blockBuilder.setHash(ByteString.copyFrom(getBlockHash()));
+        return blockBuilder.build();
     }
 
     @Override

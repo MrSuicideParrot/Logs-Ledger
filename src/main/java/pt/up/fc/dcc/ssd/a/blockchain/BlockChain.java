@@ -1,5 +1,7 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
+import pt.up.fc.dcc.ssd.a.Config;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
@@ -36,8 +38,34 @@ public class BlockChain {
 
     }
 
+    LogType[] getLogsToMine(){
+        LogType[] logs = new LogType[Config.maxLogs];
+        int j = 0;
+
+        for(LogType i : logPool){
+            logs[j] = i;
+
+            ++j;
+
+            if(j>= Config.maxLogs)
+                break;
+        }
+
+        return logs;
+    }
+
+    void removeLogsFromPool(LogType[] logs){
+        for(LogType i : logs){
+            logPool.remove(i);
+        }
+    }
+
     public int getMaxIndex(){
-        return lastBlock.getIndex();
+        return lastBlock.getBlockSign().getData().getIndex();
+    }
+
+    public byte[] getLastBlockHash(){
+        return lastBlock.getHash().toByteArray();
     }
 
 
