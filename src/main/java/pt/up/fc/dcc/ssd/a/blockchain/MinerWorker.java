@@ -17,7 +17,7 @@ public class MinerWorker implements Runnable{
         while (true){
 
             if(bl.logPool.size() >= Config.maxLogs) {
-               // Block bl = new Block();
+               // BlockBuilder bl = new BlockBuilder();
 
                 while (!reset) {
 

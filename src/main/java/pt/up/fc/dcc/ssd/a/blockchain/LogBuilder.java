@@ -3,11 +3,11 @@ package pt.up.fc.dcc.ssd.a.blockchain;
 import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.node.Signable;
 
-public class Log implements Signable {
+public class LogBuilder implements Signable {
     private LogType pLog;
     private LogType.Builder log_builder;
 
-    Log(byte[] data){
+    LogBuilder(byte[] data){
         log_builder = LogType.newBuilder();
 
         LogType.LogData.Builder data_builder = log_builder.getDataBuilder();

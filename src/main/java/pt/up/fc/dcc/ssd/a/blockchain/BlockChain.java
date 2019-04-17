@@ -20,7 +20,7 @@ public class BlockChain {
     }
 
     private void genesisBlockGen(){
-        Block bl = new Block();
+        BlockBuilder bl = new BlockBuilder();
 
     }
 

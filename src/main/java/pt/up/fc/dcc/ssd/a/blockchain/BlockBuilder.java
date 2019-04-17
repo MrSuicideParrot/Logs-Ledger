@@ -7,12 +7,12 @@ import pt.up.fc.dcc.ssd.a.node.Signable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-class Block implements Signable {
+class BlockBuilder implements Signable {
     private BlockType.Builder blockBuilder;
     private BlockType.BlockSign.BlockData.Builder dataBuilder;
     private int indexLog;
 
-    Block(int index, byte[] parent, long date){
+    BlockBuilder(int index, byte[] parent, long date){
        blockBuilder = BlockType.newBuilder();
        dataBuilder = blockBuilder.getBlockSignBuilder().getDataBuilder();
 
@@ -23,12 +23,12 @@ class Block implements Signable {
        indexLog = 0;
     }
 
-    Block(){
+    BlockBuilder(){
         this(0, "42".getBytes(), 0);
 
     }
 
-    boolean addLog(Log newLog){
+    boolean addLog(LogBuilder newLog){
         if(indexLog < Config.maxLogs){
             dataBuilder.addLogs(newLog.getProtoType());
             ++indexLog;
