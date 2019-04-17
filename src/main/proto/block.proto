@@ -13,13 +13,14 @@ service BlockChainService{
 }
 
 message LogType{
-    bytes data = 1;
-    bytes assin = 2;
+    int32 timestamp = 1;
+    bytes data = 2;
+    bytes assin = 3;
 }
 
 message BlockType{
     bytes hashParent = 1;
-    int64 index = 2;
+    int32 index = 2;
     int64 timestamp = 3;
     repeated LogType logs = 4;
     bytes assin = 5;
@@ -28,10 +29,9 @@ message BlockType{
 }
 
 message BlockID{
-    int64 index = 1;
+    int32 index = 1;
 }
 
 message BlockHash{
     bytes blockHash = 1;
-    bytes parentHash = 2;
 }

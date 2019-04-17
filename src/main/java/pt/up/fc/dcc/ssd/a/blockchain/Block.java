@@ -7,12 +7,17 @@ class Block {
     private BlockType.Builder blockBuilder;
     private int indexLog;
 
-    Block(long index, byte[] parent, long date){
+    Block(int index, byte[] parent, long date){
        blockBuilder = BlockType.newBuilder();
        blockBuilder.setIndex(index);
        blockBuilder.setHashParent(ByteString.copyFrom(parent));
        blockBuilder.setTimestamp(date);
        indexLog = 0;
+    }
+
+    Block(){
+        this(0, "42".getBytes(), 0);
+
     }
 
     boolean addLog(Log newLog){
