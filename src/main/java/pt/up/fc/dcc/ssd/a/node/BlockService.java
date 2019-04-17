@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
-import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 
 public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBase {
     BlockChain m;
@@ -26,11 +25,11 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
 
     @Override
     public void getBlockHash(BlockID request, StreamObserver<BlockHash> responseObserver) {
-        Byte[] hash =  m.getHashIndex(request.getIndex());
+        byte[] hash =  m.getHashIndex(request.getIndex());
 
         if(hash != null){
             responseObserver.onNext(
-                    BlockHash.newBuilder().setBlockHash(ByteString.copyFrom(ArrayTools.toPrimitives(hash))).build()
+                    BlockHash.newBuilder().setBlockHash(ByteString.copyFrom(hash)).build()
             );
         }
 
@@ -40,6 +39,13 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
     @Override
     public void newLog(LogType request, StreamObserver<Type.Empty> responseObserver) {
         m.addLogToPool(request);
+        responseObserver.onNext(Type.Empty.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void newBlock(BlockType request, StreamObserver<Type.Empty> responseObserver) {
+        m.newBlockAnnounc(request);
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
     }

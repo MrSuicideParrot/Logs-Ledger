@@ -40,7 +40,7 @@ public class MinerWorker implements Runnable{
                 }
 
                 if(!reset){
-                    
+
                 }
             }
 

@@ -18,6 +18,7 @@ public class Node {
     private byte[] nodeID;
     static String myIP;
     private DHT kadmelia;
+    private SecureModule sec;
     private ServerBuilder serverBuilder;
     private Server server;
 
@@ -29,6 +30,7 @@ public class Node {
     }
 
     void start() throws IOException {
+        sec = new SecureModule();
         nodeID = initialize();
         System.out.println(Challenge.bytesToHex(nodeID));
 

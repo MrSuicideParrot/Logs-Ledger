@@ -2,6 +2,7 @@ package pt.up.fc.dcc.ssd.a.blockchain;
 
 import pt.up.fc.dcc.ssd.a.Config;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
@@ -12,71 +13,109 @@ public class BlockChain {
     Lock logPoolLock;
 
     BlockType lastBlock;
-    LinkedList<Byte[]> blockChain;
+    LinkedList<byte[]> blockChain;
+    HashSet<byte []> blocks;
+    BlockType genBlock;
 
-    BlockChain(){
+    BlockChain() {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
-        blockChain = new LinkedList<Byte[]>();
+        blockChain = new LinkedList<byte[]>();
+        blocks = new HashSet<>();
         genesisBlockGen();
     }
 
-    private void genesisBlockGen(){
-        BlockBuilder bl = new BlockBuilder();
-
+    private void genesisBlockGen() {
+        genBlock = BlockBuilder.genesisBlock();
+        lastBlock = genBlock;
+        blockChain.addLast(genBlock.getHash().toByteArray());
+        blocks.add(genBlock.getHash().toByteArray());
     }
 
-    public void addLogToPool(LogType l){
+    public void addLogToPool(LogType l) {
         logPoolLock.lock();
-        if(logPool.add(l)){
+        if (logPool.add(l)) {
             logPoolLock.unlock();
             //TODO gossip
-        }
-        else{
+        } else {
             logPoolLock.unlock();
         }
 
     }
 
-    LogType[] getLogsToMine(){
+    LogType[] getLogsToMine() {
         LogType[] logs = new LogType[Config.maxLogs];
         int j = 0;
 
-        for(LogType i : logPool){
+        for (LogType i : logPool) {
             logs[j] = i;
 
             ++j;
 
-            if(j>= Config.maxLogs)
+            if (j >= Config.maxLogs)
                 break;
         }
 
         return logs;
     }
 
-    void removeLogsFromPool(LogType[] logs){
-        for(LogType i : logs){
+    void removeLogsFromPool(LogType[] logs) {
+        for (LogType i : logs) {
             logPool.remove(i);
         }
     }
 
-    public int getMaxIndex(){
+    public int getMaxIndex() {
         return lastBlock.getBlockSign().getData().getIndex();
     }
 
-    public byte[] getLastBlockHash(){
+    public byte[] getLastBlockHash() {
         return lastBlock.getHash().toByteArray();
     }
 
 
-    public Byte[] getHashIndex(int index){
+    public byte[] getHashIndex(int index) {
         try {
             return blockChain.get(index);
-        }
-        catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             return null;
         }
 
     }
 
+    boolean addNewBlock(BlockType newBlock){
+        byte[] hashBlock = newBlock.getHash().toByteArray();
+        int index = newBlock.getBlockSign().getData().getIndex();
+
+        if(index == this.getMaxIndex()+1){
+            if(BlockBuilder.confirmBlock(blockChain.getLast(), newBlock)){
+                lastBlock = newBlock;
+                blocks.add(hashBlock);
+                blockChain.addLast(hashBlock);
+                return true;
+            }
+        }
+        else if(index < this.getMaxIndex()){
+            if(BlockBuilder.confirmBlock(blockChain.get(index-1), newBlock)){
+                if(!Arrays.equals(blockChain.get(index),hashBlock)){
+                    // TODO fork
+                }
+            }
+        }
+        return false;
+    }
+
+    public void newBlockAnnounc(BlockType newBlock) {
+        byte[] hashBlock = newBlock.getHash().toByteArray();
+
+        if(!blocks.contains(hashBlock)){
+            if(!addNewBlock(newBlock)){
+                updateBlockChain();
+            }
+            //TODO Gossip
+        }
+    }
+
+    private void updateBlockChain() {
+    }
 }
