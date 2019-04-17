@@ -13,19 +13,34 @@ service BlockChainService{
 }
 
 message LogType{
-    int32 timestamp = 1;
-    bytes data = 2;
-    bytes assin = 3;
+
+    message LogData{
+        int64 timestamp = 1;
+        bytes data = 2;
+    }
+
+    LogData data = 1;
+    bytes assin = 2;
 }
 
 message BlockType{
-    bytes hashParent = 1;
-    int32 index = 2;
-    int64 timestamp = 3;
-    repeated LogType logs = 4;
-    bytes assin = 5;
-    int64 nonce = 6;
-    bytes hash = 7;
+
+    message BlockSign{
+
+        message BlockData{
+            bytes hashParent = 1;
+            int32 index = 2;
+            int64 timestamp = 3;
+            repeated LogType logs = 4;
+        }
+
+        BlockData data = 1;
+        bytes assin = 2;
+        int64 nonce = 3;
+    }
+
+    BlockSign blockSign = 1;
+    bytes hash = 2;
 }
 
 message BlockID{

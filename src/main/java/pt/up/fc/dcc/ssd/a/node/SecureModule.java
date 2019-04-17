@@ -115,6 +115,10 @@ public class SecureModule {
         }
     }
 
+    public void sign(Signable obj){
+        obj.setSignature(this.sign(obj.getDataToSign()));
+    }
+
     /**
      * @param plaintext Plaintext
      * @param signature

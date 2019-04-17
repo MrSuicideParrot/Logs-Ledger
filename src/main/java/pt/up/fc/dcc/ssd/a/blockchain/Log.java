@@ -1,15 +1,21 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
 import com.google.protobuf.ByteString;
+import pt.up.fc.dcc.ssd.a.node.Signable;
 
-public class Log {
+public class Log implements Signable {
     private LogType pLog;
+    private LogType.Builder log_builder;
 
-    Log(byte[] data, byte[] assin){
-        LogType.Builder log_builder = LogType.newBuilder();
-        log_builder.setData(ByteString.copyFrom(data));
-        log_builder.setAssin(ByteString.copyFrom(assin));
-        pLog = log_builder.build();
+    Log(byte[] data){
+        log_builder = LogType.newBuilder();
+
+        LogType.LogData.Builder data_builder = log_builder.getDataBuilder();
+
+        data_builder.setData(ByteString.copyFrom(data));
+        data_builder.setTimestamp(System.currentTimeMillis() / 1000L);
+
+        pLog = null;
     }
 
     public LogType getProtoType(){
@@ -17,7 +23,13 @@ public class Log {
     }
 
     @Override
-    public String toString() {
-        return pLog.toString();
+    public byte[] getDataToSign() {
+        return log_builder.getDataBuilder().build().toByteArray();
+    }
+
+    @Override
+    public void setSignature(byte[] signature) {
+        log_builder.setAssin(ByteString.copyFrom(signature));
+        pLog = log_builder.build();
     }
 }

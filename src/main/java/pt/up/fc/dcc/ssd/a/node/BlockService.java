@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
-import pt.up.fc.dcc.ssd.a.utils.Array;
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 
 public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBase {
     BlockChain m;
@@ -30,7 +30,7 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
 
         if(hash != null){
             responseObserver.onNext(
-                    BlockHash.newBuilder().setBlockHash(ByteString.copyFrom(Array.toPrimitives(hash))).build()
+                    BlockHash.newBuilder().setBlockHash(ByteString.copyFrom(ArrayTools.toPrimitives(hash))).build()
             );
         }
 
