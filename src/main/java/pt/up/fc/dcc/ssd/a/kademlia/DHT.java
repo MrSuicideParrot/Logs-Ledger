@@ -40,8 +40,11 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
         Node closestNode = sl.peekFirst();
 
-        LinkedList<NodeM> respostas = new LinkedList<NodeM>();
         while(true){
+
+            Set<NodeM> respostas = Collections.synchronizedSet(new HashSet());
+            TrakerAsync tracker = new TrakerAsync();
+
             for(Node i: sl){
 
                 if(networkNode.contains(i))
@@ -55,7 +58,8 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
                     case STOREVALUE:
                     case FINDNODE:
-                        respostas.add(i.findNode(target));
+                        respostas.add(i.findNode(target,respostas , tracker));
+                        tracker.increment();
                         networkNode.add(i);
                         break;
 
@@ -64,6 +68,8 @@ lookup. Kademlia employs a recursive algorithm for node lookups.  6
 
                 }
             }
+
+            while (!tracker.completed());
 
             /* Processar respostas*/
 

@@ -98,7 +98,7 @@ public class BlockChain {
         else if(index < this.getMaxIndex()){
             if(BlockBuilder.confirmBlock(blockChain.get(index-1), newBlock)){
                 if(!Arrays.equals(blockChain.get(index),hashBlock)){
-                    // TODO fork
+                    // TODO fork na blockchain
                 }
             }
         }
@@ -116,6 +116,7 @@ public class BlockChain {
         }
     }
 
-    private void updateBlockChain() {
+    void updateBlockChain() {
+
     }
 }

@@ -5,10 +5,10 @@ import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Set;
 
 public class Node{
     private int ip;
@@ -43,22 +43,24 @@ public class Node{
         return id;
     }
 
-    NodeM findNode(byte[] target){
+    NodeM findNode(byte[] target, Set<NodeM> nodes, TrakerAsync tracker){
         try {
             Channel channel = chanelBuilder.build();
-            KademliaServiceGrpc.KademliaServiceBlockingStub stub = KademliaServiceGrpc.newBlockingStub(channel);
-            NodeM response = stub.findNode(NodeIDM.newBuilder()
-                    .setNodeID(ByteString.copyFrom(target))
-                    .setMyNodeID(ByteString.copyFrom(pt.up.fc.dcc.ssd.a.node.Node.getIP(),"UTF-8"))
-                    .build());
+            KademliaServiceGrpc.KademliaServiceStub stub = KademliaServiceGrpc.newStub(channel);
+            NodeIDM.Builder b = NodeIDM.newBuilder();
+
+            b.setNodeID(ByteString.copyFrom(target));
+            b.setMyNodeID(ByteString.copyFrom(Config.myID));
+
+            stub.findNode(b.build(),new FindNodeObserver(nodes, tracker ));
 
             this.seenNow();
-            return response;
-        }
-        catch (UnsupportedEncodingException e){
-            System.err.println("Colocaste mal o encoding!");
             return null;
         }
+       /* catch (UnsupportedEncodingException e){
+            System.err.println("Colocaste mal o encoding!");
+            return null;
+        }*/
         catch (StatusRuntimeException e){
             //TODO tirar o no
             return null;
