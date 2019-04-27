@@ -6,7 +6,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
-import pt.up.fc.dcc.ssd.a.kademlia.DHT;
+
 import pt.up.fc.dcc.ssd.a.tracker.*;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.IPGetter;
@@ -17,7 +17,7 @@ public class Node {
     final static int port = 34832;
     private byte[] nodeID;
     static String myIP;
-    private DHT kadmelia;
+
     private SecureModule sec;
     private ServerBuilder serverBuilder;
     private Server server;
@@ -35,7 +35,7 @@ public class Node {
         System.out.println(Challenge.bytesToHex(nodeID));
 
         /** Add services **/
-        serverBuilder.addService(new KademeliaService(this.kadmelia));
+
 
         server = serverBuilder.build();
         server.start();
