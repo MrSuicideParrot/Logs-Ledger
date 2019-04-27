@@ -13,14 +13,14 @@ public class BlockChain {
     Lock logPoolLock;
 
     BlockType lastBlock;
-    LinkedList<byte[]> blockChain;
+    LinkedList<BlockType> blockChain;
     HashSet<byte []> blocks;
     BlockType genBlock;
 
     BlockChain() {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
-        blockChain = new LinkedList<byte[]>();
+        blockChain = new LinkedList<>();
         blocks = new HashSet<>();
         genesisBlockGen();
     }
@@ -28,7 +28,7 @@ public class BlockChain {
     private void genesisBlockGen() {
         genBlock = BlockBuilder.genesisBlock();
         lastBlock = genBlock;
-        blockChain.addLast(genBlock.getHash().toByteArray());
+        blockChain.addLast(genBlock);
         blocks.add(genBlock.getHash().toByteArray());
     }
 
@@ -76,7 +76,7 @@ public class BlockChain {
 
     public byte[] getHashIndex(int index) {
         try {
-            return blockChain.get(index);
+            return blockChain.get(index).getHash().toByteArray();
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
@@ -88,16 +88,16 @@ public class BlockChain {
         int index = newBlock.getBlockSign().getData().getIndex();
 
         if(index == this.getMaxIndex()+1){
-            if(BlockBuilder.confirmBlock(blockChain.getLast(), newBlock)){
+            if(BlockBuilder.confirmBlock(blockChain.getLast().getHash().toByteArray(), newBlock)){
                 lastBlock = newBlock;
                 blocks.add(hashBlock);
-                blockChain.addLast(hashBlock);
+                blockChain.addLast(newBlock);
                 return true;
             }
         }
         else if(index < this.getMaxIndex()){
-            if(BlockBuilder.confirmBlock(blockChain.get(index-1), newBlock)){
-                if(!Arrays.equals(blockChain.get(index),hashBlock)){
+            if(BlockBuilder.confirmBlock(blockChain.get(index-1).getHash().toByteArray(), newBlock)){
+                if(!Arrays.equals(blockChain.get(index).getHash().toByteArray(),hashBlock)){
                     // TODO fork na blockchain
                 }
             }
@@ -118,5 +118,9 @@ public class BlockChain {
 
     void updateBlockChain() {
 
+    }
+
+    public BlockType getBlock(int index) {
+        return blockChain.get(index);
     }
 }

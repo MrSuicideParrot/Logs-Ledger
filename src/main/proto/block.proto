@@ -9,6 +9,7 @@ import "type.proto";
 service BlockChainService{
     rpc GetMaxBlockIndex(Empty) returns (BlockID){}
     rpc GetBlockHash(BlockID) returns (BlockHash){}
+    rpc GetBlock(BlockID) returns (BlockType){}
     rpc NewLog(LogType) returns (Empty) {}
     rpc NewBlock(BlockType) returns (Empty) {}
 }

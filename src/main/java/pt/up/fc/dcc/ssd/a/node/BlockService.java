@@ -37,6 +37,13 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
     }
 
     @Override
+    public void getBlock(BlockID request, StreamObserver<BlockType> responseObserver) {
+        BlockType bloco = m.getBlock(request.getIndex());
+        responseObserver.onNext(bloco);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void newLog(LogType request, StreamObserver<Type.Empty> responseObserver) {
         m.addLogToPool(request);
         responseObserver.onNext(Type.Empty.newBuilder().build());

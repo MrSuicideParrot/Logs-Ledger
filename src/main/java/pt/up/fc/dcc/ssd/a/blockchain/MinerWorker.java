@@ -1,6 +1,5 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
-import jdk.nashorn.internal.ir.WhileNode;
 import pt.up.fc.dcc.ssd.a.Config;
 
 import java.util.Random;
