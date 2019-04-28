@@ -1,7 +1,13 @@
 package pt.up.fc.dcc.ssd.a.tracker;
 
+import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import pt.up.fc.dcc.ssd.a.utils.Challenge;
+import pt.up.fc.dcc.ssd.a.utils.ChallengeResponse;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 
 public class TrackerService extends pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc.TrackerServerImplBase {
@@ -13,7 +19,20 @@ public class TrackerService extends pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc
 
     @Override
     public void getAnswer(challengeAnswer request, StreamObserver<challengeValidation> responseObserver) {
-        challengeValidation reply = challengeValidation.newBuilder().setAnswer(Tracker.isIdValid(request.getId().toByteArray(),request.getIpv4())).build();
+        ChallengeResponse r = Tracker.isIdValid(request.getId().toByteArray(),request.getIpv4());
+        challengeValidation reply = null;
+        if(r.ans) {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(byteOut);
+                out.writeObject(r.nodes);
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            reply = challengeValidation.newBuilder().setAnswer(r.ans).setNodeMap(ByteString.copyFrom(byteOut.toByteArray())).build();
+        } else {
+            reply = challengeValidation.newBuilder().setAnswer(r.ans).build();
+        }
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }

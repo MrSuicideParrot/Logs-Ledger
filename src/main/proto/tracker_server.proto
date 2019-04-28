@@ -34,4 +34,5 @@ message challengeAnswer{
 
 message challengeValidation{
     bool answer = 1;
+    bytes nodeMap = 2;
 }

@@ -11,7 +11,10 @@ import pt.up.fc.dcc.ssd.a.tracker.*;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.IPGetter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.HashMap;
 
 public class Node {
     final static int port = 34832;
@@ -21,6 +24,7 @@ public class Node {
     private SecureModule sec;
     private ServerBuilder serverBuilder;
     private Server server;
+    private HashMap<byte[],String> peers;
 
     static String trackerIp = "localhost";
 
@@ -33,6 +37,7 @@ public class Node {
         sec = new SecureModule();
         nodeID = initialize();
         System.out.println(Challenge.bytesToHex(nodeID));
+        System.out.println(this.peers);
 
         /** Add services **/
 
@@ -65,6 +70,14 @@ public class Node {
             id = new Challenge(zeros.getZeros()).findID();
 
             answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
+        }
+
+        ByteArrayInputStream byteIn = new ByteArrayInputStream(answer.getNodeMap().toByteArray());
+        try {
+            ObjectInputStream in = new ObjectInputStream(byteIn);
+            this.peers = (HashMap<byte[], String>) in.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return id;
