@@ -4,12 +4,15 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
+import pt.up.fc.dcc.ssd.a.p2p.Network;
 
 public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBase {
     BlockChain m;
+    Network n;
 
-    BlockService(BlockChain m){
+    BlockService(BlockChain m, Network n){
         this.m = m;
+        this.n = n;
     }
 
     @Override
@@ -45,15 +48,29 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
 
     @Override
     public void newLog(LogType request, StreamObserver<Type.Empty> responseObserver) {
-        m.addLogToPool(request);
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
+
+        boolean added = m.addLogToPool(request);
+        if(added){
+            n.gossipLog(request);
+        }
     }
 
     @Override
     public void newBlock(BlockType request, StreamObserver<Type.Empty> responseObserver) {
-        m.newBlockAnnounc(request);
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
+
+        if(m.contains(request.getHash().toByteArray())) {
+            /*TODO
+                Confiança
+             */
+
+            boolean added = m.addNewBlock(request);
+            if (added) {
+                n.gossipBlock(request);
+            }
+        }
     }
 }

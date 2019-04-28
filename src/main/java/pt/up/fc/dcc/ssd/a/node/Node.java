@@ -7,6 +7,9 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 
+import pt.up.fc.dcc.ssd.a.Config;
+import pt.up.fc.dcc.ssd.a.blockchain.BlockChain;
+import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.tracker.*;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.IPGetter;
@@ -24,20 +27,26 @@ public class Node {
     private SecureModule sec;
     private ServerBuilder serverBuilder;
     private Server server;
-    private HashMap<byte[],String> peers;
 
-    static String trackerIp = "localhost";
+    private Network net;
+    private BlockChain block;
 
-    Node(){
+
+
+
+    public Node(){
         myIP = IPGetter.getIP();
         serverBuilder = ServerBuilder.forPort(port);
+
+        block = new BlockChain();
+        net = new Network();
     }
 
     void start() throws IOException {
         sec = new SecureModule();
         nodeID = initialize();
         System.out.println(Challenge.bytesToHex(nodeID));
-        System.out.println(this.peers);
+     
 
         /** Add services **/
 
@@ -57,7 +66,7 @@ public class Node {
      * @return id do no
      */
     byte[] initialize(){
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",port+1).usePlaintext().build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(Config.trackerIp,port+1).usePlaintext().build();
         TrackerServerGrpc.TrackerServerBlockingStub blockingStub = TrackerServerGrpc.newBlockingStub(channel);
 
         challenge zeros = blockingStub.idRequest(empty.newBuilder().build());
@@ -71,11 +80,13 @@ public class Node {
 
             answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
         }
+        Config.myID = id;
+        nodeID = id;
 
         ByteArrayInputStream byteIn = new ByteArrayInputStream(answer.getNodeMap().toByteArray());
         try {
             ObjectInputStream in = new ObjectInputStream(byteIn);
-            this.peers = (HashMap<byte[], String>) in.readObject();
+             net.initializeNodes((HashMap<byte[], String>) in.readObject());
         } catch (Exception e) {
             e.printStackTrace();
         }

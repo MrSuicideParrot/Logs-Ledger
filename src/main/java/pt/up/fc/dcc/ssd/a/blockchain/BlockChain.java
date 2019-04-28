@@ -17,7 +17,7 @@ public class BlockChain {
     HashSet<byte []> blocks;
     BlockType genBlock;
 
-    BlockChain() {
+    public BlockChain() {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
         blockChain = new LinkedList<>();
@@ -32,13 +32,14 @@ public class BlockChain {
         blocks.add(genBlock.getHash().toByteArray());
     }
 
-    public void addLogToPool(LogType l) {
+    public boolean addLogToPool(LogType l) {
         logPoolLock.lock();
         if (logPool.add(l)) {
             logPoolLock.unlock();
-            //TODO gossip
+            return true;
         } else {
             logPoolLock.unlock();
+            return false;
         }
 
     }
@@ -83,7 +84,7 @@ public class BlockChain {
 
     }
 
-    boolean addNewBlock(BlockType newBlock){
+    public boolean addNewBlock(BlockType newBlock){
         byte[] hashBlock = newBlock.getHash().toByteArray();
         int index = newBlock.getBlockSign().getData().getIndex();
 
@@ -105,7 +106,8 @@ public class BlockChain {
         return false;
     }
 
-    public void newBlockAnnounc(BlockType newBlock) {
+    /*
+    public boolean newBlockAnnounc(BlockType newBlock) {
         byte[] hashBlock = newBlock.getHash().toByteArray();
 
         if(!blocks.contains(hashBlock)){
@@ -114,6 +116,11 @@ public class BlockChain {
             }
             //TODO Gossip
         }
+    }
+*/
+    public boolean contains(byte[] hash){
+        return blocks.contains(hash);
+
     }
 
     void updateBlockChain() {

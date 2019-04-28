@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.BlockChainServiceGrpc;
 import pt.up.fc.dcc.ssd.a.blockchain.BlockType;
 import pt.up.fc.dcc.ssd.a.blockchain.LogType;
@@ -29,6 +30,10 @@ public class Node  implements Comparable<Node>{
     private Lock lock;
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
+
+    Node(byte[] id, String host) {
+        this(id, host, Config.port);
+    }
 
     Node(byte[] id, String host, int port) {
         this.id = id;
