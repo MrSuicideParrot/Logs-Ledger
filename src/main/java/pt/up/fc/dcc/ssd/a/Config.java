@@ -16,4 +16,5 @@ public class Config {
     public static int SPREAD_FALSE_BLOCK = 2000;
 
 
+    public static String ipv4;
 }

@@ -16,6 +16,15 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
     }
 
     @Override
+    public void helloNode(Hello request, StreamObserver<Hello> responseObserver) {
+        Hello myHello = n.getHello();
+        responseObserver.onNext(myHello);
+        responseObserver.onCompleted();
+
+        n.addP2P(request);
+    }
+
+    @Override
     public void getMaxBlockIndex(Type.Empty request, StreamObserver<BlockID> responseObserver) {
         responseObserver.onNext(
                 BlockID.newBuilder().setIndex(
@@ -47,30 +56,32 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
     }
 
     @Override
-    public void newLog(LogType request, StreamObserver<Type.Empty> responseObserver) {
+    public void newLog(LogGossip request, StreamObserver<Type.Empty> responseObserver) {
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        boolean added = m.addLogToPool(request);
+        boolean added = m.addLogToPool(request.getLog());
         if(added){
-            n.gossipLog(request);
+            n.gossipLog(request.getLog());
         }
+
     }
 
     @Override
-    public void newBlock(BlockType request, StreamObserver<Type.Empty> responseObserver) {
+    public void newBlock(BlockGossip request, StreamObserver<Type.Empty> responseObserver) {
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        if(m.contains(request.getHash().toByteArray())) {
+        if(m.contains(request.getBlock().getHash().toByteArray())) {
             /*TODO
                 Confiança
              */
 
-            boolean added = m.addNewBlock(request);
+            boolean added = m.addNewBlock(request.getBlock());
             if (added) {
-                n.gossipBlock(request);
+                n.gossipBlock(request.getBlock());
             }
         }
     }
+
 }

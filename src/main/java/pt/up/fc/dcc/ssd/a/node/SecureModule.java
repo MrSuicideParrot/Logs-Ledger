@@ -58,6 +58,10 @@ public class SecureModule {
 
     private PrivateKey getPrivateKeyFromFile(String keyFilePath) throws IOException, InvalidKeySpecException {
         byte[] keyBytes = Files.readAllBytes(Paths.get(keyFilePath));
+        return getPrivateKey(keyBytes);
+    }
+
+    public static PrivateKey getPrivateKey(byte[] keyBytes) throws InvalidKeySpecException {
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
 
         KeyFactory keyFactory = null;
@@ -75,6 +79,10 @@ public class SecureModule {
 
     private PublicKey getPublicKeyFromFile(String keyFilePath) throws CertificateException, FileNotFoundException, Exception {
         byte[] keyBytes = Files.readAllBytes(Paths.get(keyFilePath));
+        return getPublicKey(keyBytes);
+    }
+
+    public static PublicKey getPublicKey(byte[] keyBytes) throws InvalidKeySpecException {
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
 
         KeyFactory keyFactory = null;
@@ -125,15 +133,23 @@ public class SecureModule {
      * @return
      */
     public boolean verifySign(byte[] plaintext, byte[] signature) {
+        return verifySign(plaintext, signature, keys.getPublic());
+    }
+
+    public static boolean verifySign(byte[] plaintext, byte[] signature, PublicKey key) {
         try {
             Signature ecdsaVerify = Signature.getInstance("SHA256withECDSA", "BC");
-            ecdsaVerify.initVerify(this.keys.getPublic());
+            ecdsaVerify.initVerify(key);
             ecdsaVerify.update(plaintext);
             return ecdsaVerify.verify(signature);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public byte[] getPubEncoded(){
+        return keys.getPublic().getEncoded();
     }
 
 

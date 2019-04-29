@@ -6,10 +6,11 @@ import io.grpc.stub.StreamObserver;
 
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.BlockChainServiceGrpc;
-import pt.up.fc.dcc.ssd.a.blockchain.BlockType;
-import pt.up.fc.dcc.ssd.a.blockchain.LogType;
+import pt.up.fc.dcc.ssd.a.blockchain.BlockGossip;
+import pt.up.fc.dcc.ssd.a.blockchain.LogGossip;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
 
+import java.security.PublicKey;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -29,16 +30,19 @@ public class Node  implements Comparable<Node>{
 
     private Lock lock;
 
+    private PublicKey pub;
+
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
-    Node(byte[] id, String host) {
-        this(id, host, Config.port);
+    Node(byte[] id, String host, PublicKey pubKey) {
+        this(id, host, pubKey, Config.port);
     }
 
-    Node(byte[] id, String host, int port) {
+    Node(byte[] id, String host, PublicKey pubKey, int port) {
         this.id = id;
         this.port = port;
         this.firstSeen = System.currentTimeMillis();
+        this.pub = pubKey;
 
         this.mistrust = firstSeen;
         lock = new ReentrantLock();
@@ -66,7 +70,7 @@ public class Node  implements Comparable<Node>{
         lock.unlock();
     }
 
-    public void newLog(LogType request) {
+    public void newLog(LogGossip request) {
 
         asyncStub.newLog(request, new StreamObserver<Type.Empty>() {
             @Override
@@ -86,7 +90,7 @@ public class Node  implements Comparable<Node>{
         });
     }
 
-    public void newBlock(BlockType request) {
+    public void newBlock(BlockGossip request) {
 
         asyncStub.newBlock(request, new StreamObserver<Type.Empty>() {
             @Override

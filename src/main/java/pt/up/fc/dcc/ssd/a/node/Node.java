@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public class Node {
     final static int port = 34832;
@@ -31,6 +32,7 @@ public class Node {
     private Network net;
     private BlockChain block;
 
+    private static final Logger logger = Logger.getLogger(Tracker.class.getName());
 
 
 
@@ -38,18 +40,18 @@ public class Node {
         myIP = IPGetter.getIP();
         serverBuilder = ServerBuilder.forPort(port);
 
+        sec = new SecureModule();
         block = new BlockChain();
-        net = new Network();
+        net = new Network(sec);
     }
 
     void start() throws IOException {
-        sec = new SecureModule();
         nodeID = initialize();
-        System.out.println(Challenge.bytesToHex(nodeID));
-     
+        logger.info("Id received: "+Challenge.bytesToHex(nodeID));
+
 
         /** Add services **/
-
+        serverBuilder.addService(new BlockService(block, net));
 
         server = serverBuilder.build();
         server.start();

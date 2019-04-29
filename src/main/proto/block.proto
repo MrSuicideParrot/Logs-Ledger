@@ -7,11 +7,23 @@ option java_outer_classname = "BlockChainProtocol";
 import "type.proto";
 
 service BlockChainService{
+    rpc HelloNode(Hello) returns (Hello) {}
     rpc GetMaxBlockIndex(Empty) returns (BlockID){}
     rpc GetBlockHash(BlockID) returns (BlockHash){}
     rpc GetBlock(BlockID) returns (BlockType){}
-    rpc NewLog(LogType) returns (Empty) {}
-    rpc NewBlock(BlockType) returns (Empty) {}
+    rpc NewLog(LogGossip) returns (Empty) {}
+    rpc NewBlock(BlockGossip) returns (Empty) {}
+}
+
+message Hello{
+    message HelloContent{
+        bytes nodeID = 1;
+        bytes publicKey =2;
+        string ipv4 = 3;
+    }
+
+    HelloContent hello = 1;
+    bytes assin = 2;
 }
 
 message LogType{
@@ -23,6 +35,12 @@ message LogType{
 
     LogData data = 1;
     bytes assin = 2;
+}
+
+message LogGossip{
+    LogType log = 1;
+    bytes nodeID = 2;
+    bytes assin = 3;
 }
 
 message BlockType{
@@ -43,6 +61,12 @@ message BlockType{
 
     BlockSign blockSign = 1;
     bytes hash = 2;
+}
+
+message BlockGossip{
+    BlockType block = 1;
+    bytes nodeID = 2;
+    bytes assin = 3;
 }
 
 message BlockID{
