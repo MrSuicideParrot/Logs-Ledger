@@ -43,6 +43,8 @@ public class Node {
         sec = new SecureModule();
         block = new BlockChain();
         net = new Network(sec);
+
+        Config.ipv4 = IPGetter.getIP();
     }
 
     void start() throws IOException {

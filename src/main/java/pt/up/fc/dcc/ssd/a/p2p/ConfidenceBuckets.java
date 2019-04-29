@@ -1,5 +1,6 @@
 package pt.up.fc.dcc.ssd.a.p2p;
 
+import java.util.Timer;
 import pt.up.fc.dcc.ssd.a.Config;
 
 import java.security.SecureRandom;
@@ -17,6 +18,9 @@ public class ConfidenceBuckets implements Iterable<Node>{
         for(int i = 0; i < Config.nBuckets; ++i){
             buckets[i] = new Bucket();
         }
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new ConfidenceUpdate(this),  2*60*1000, 2*60*1000);
     }
 
     void addP2PNode(Node newNode){
