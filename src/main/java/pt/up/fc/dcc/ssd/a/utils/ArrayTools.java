@@ -1,5 +1,8 @@
 package pt.up.fc.dcc.ssd.a.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ArrayTools {
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
@@ -21,5 +24,37 @@ public class ArrayTools {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+
+    public static Object mode(final Object[] objs) {
+        Map<Object, Integer> countMap = new HashMap<>();
+
+        int max = -1;
+
+        for (Object i: objs) {
+            int count = 0;
+
+            if (countMap.containsKey(i)){
+                count = countMap.get(i) + 1;
+            }
+            else {
+                count = 1;
+            }
+
+            countMap.put(i, count);
+
+            if (count > max) {
+                max = count;
+            }
+        }
+
+        for (Map.Entry<Object, Integer> tuple : countMap.entrySet()){
+            if (tuple.getValue() == max) {
+                return tuple.getKey();
+            }
+        }
+
+        return null;
     }
 }

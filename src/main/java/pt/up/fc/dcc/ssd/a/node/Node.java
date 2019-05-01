@@ -20,6 +20,8 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import static pt.up.fc.dcc.ssd.a.utils.IPGetter.getIP;
+
 public class Node {
     final static int port = 34832;
     private byte[] nodeID;
@@ -37,12 +39,12 @@ public class Node {
 
 
     public Node(){
-        myIP = IPGetter.getIP();
+        myIP = getIP();
         serverBuilder = ServerBuilder.forPort(port);
 
         sec = new SecureModule();
-        block = new BlockChain();
-        net = new Network(sec);
+        block = new BlockChain(net);
+        net = new Network(sec, block);
 
         Config.ipv4 = IPGetter.getIP();
     }

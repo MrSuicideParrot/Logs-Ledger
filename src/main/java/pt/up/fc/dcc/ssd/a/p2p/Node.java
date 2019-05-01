@@ -1,13 +1,12 @@
 package pt.up.fc.dcc.ssd.a.p2p;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
 import pt.up.fc.dcc.ssd.a.Config;
-import pt.up.fc.dcc.ssd.a.blockchain.BlockChainServiceGrpc;
-import pt.up.fc.dcc.ssd.a.blockchain.BlockGossip;
-import pt.up.fc.dcc.ssd.a.blockchain.LogGossip;
+import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
 
 import java.security.PublicKey;
@@ -110,9 +109,21 @@ public class Node  implements Comparable<Node>{
         });
     }
 
+    public int getMaxBlockIndex(){
+        return blockStub.getMaxBlockIndex(Type.Empty.newBuilder().build()).getIndex();
+    }
+
+    public BlockType getBlockByIndex(int index){
+        return blockStub.getBlock(BlockID.newBuilder().setIndex(index).build());
+
+    }
 
     @Override
     public int compareTo(Node node) {
         return 0;
+    }
+
+    public ByteString getHashBlockByIndex(int index) {
+        return blockStub.getBlockHash(BlockID.newBuilder().setIndex(index).build()).getBlockHash();
     }
 }

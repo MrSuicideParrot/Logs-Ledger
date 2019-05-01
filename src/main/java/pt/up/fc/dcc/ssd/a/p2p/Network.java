@@ -3,14 +3,13 @@ package pt.up.fc.dcc.ssd.a.p2p;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.node.SecureModule;
-import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 import java.security.PublicKey;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -21,16 +20,17 @@ public class Network {
     ConfidenceBuckets conf;
     Hello myHello;
     SecureModule sec;
+    BlockChain blockChain;
 
     Lock lock;
     private static final Logger logger = Logger.getLogger(Network.class.getName());
 
 
-    public Network(SecureModule sec){
+    public Network(SecureModule sec, BlockChain blockChain){
         conf = new ConfidenceBuckets();
         this.sec = sec;
         lock = new ReentrantLock();
-
+        this.blockChain = blockChain;
         // Generate hello
        {
             Hello.Builder buildHello = Hello.newBuilder();
@@ -123,6 +123,13 @@ public class Network {
         ManagedChannel chanel = chanelBuilder.build();
         BlockChainServiceGrpc.BlockChainServiceStub asyncStub = BlockChainServiceGrpc.newStub(chanel);
         asyncStub.helloNode(myHello, new HelloObserver(this));
+    }
+
+    public Node[] getConfidenceNodes(){
+        return conf.getConfidenceNodes();
+    }
+    public void getRandomNodes(int n){
+
     }
 }
 

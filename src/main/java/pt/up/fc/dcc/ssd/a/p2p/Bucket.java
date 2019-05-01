@@ -48,6 +48,10 @@ class Bucket {
         lock.unlock();
     }
 
+    Node getBestNode(){
+        return bucket.first();
+    }
+
 
     void updateMistrust(){
         lock.lock();

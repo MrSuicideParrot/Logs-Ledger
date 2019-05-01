@@ -38,4 +38,14 @@ public class ConfidenceBuckets implements Iterable<Node>{
     public Iterator<Node> iterator() {
         return null;
     }
+
+    Node[] getConfidenceNodes() {
+        Node[] nodesConf = new Node[Config.nBuckets];
+
+        for (int i=0; i <Config.nBuckets; ++i){
+            nodesConf[i] = buckets[i].getBestNode();
+        }
+
+        return nodesConf;
+    }
 }
