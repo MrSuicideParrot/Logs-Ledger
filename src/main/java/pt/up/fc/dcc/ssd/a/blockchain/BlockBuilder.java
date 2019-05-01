@@ -15,6 +15,8 @@ class BlockBuilder implements Signable {
     private BlockType.BlockSign.BlockData.Builder dataBuilder;
     private int indexLog;
 
+
+
     BlockBuilder(int index, byte[] parent, long date){
        blockBuilder = BlockType.newBuilder();
        dataBuilder = blockBuilder.getBlockSignBuilder().getDataBuilder();

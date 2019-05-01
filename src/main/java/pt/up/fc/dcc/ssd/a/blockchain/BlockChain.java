@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class BlockChain {
     HashSet<LogType> logPool;
@@ -29,6 +30,8 @@ public class BlockChain {
 
     int lastRepuCheckedBlock;
 
+    private static final Logger logger = Logger.getLogger(BlockChain.class.getName());
+
     public BlockChain(Network network) {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
@@ -43,6 +46,7 @@ public class BlockChain {
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new BlockchainUpdate(this),  Config.check_blockchain, Config.check_blockchain);
+        logger.info("BlockChain initialized");
     }
 
     private void genesisBlockGen() {
@@ -56,6 +60,7 @@ public class BlockChain {
         logPoolLock.lock();
         if (logPool.add(l)) {
             logPoolLock.unlock();
+            logger.info("Log added to log pool");
             return true;
         } else {
             logPoolLock.unlock();
@@ -115,6 +120,7 @@ public class BlockChain {
                 blocks.add(hashBlock);
                 blockChain.addLast(newBlock);
                 blockChainLock.unlock();
+                logger.info("New block added to blockchain");
                 return true;
             }
         }
