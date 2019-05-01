@@ -3,6 +3,7 @@ package pt.up.fc.dcc.ssd.a.blockchain;
 import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.node.Signable;
+import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 import java.security.MessageDigest;
@@ -93,7 +94,10 @@ class BlockBuilder implements Signable {
 
         {
             // Nonce confirm
-            //TODO confirmar nonce
+            //TODO deve depois haver mais merda aqui ¯\_(ツ)_/¯
+            if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+                return false;
+            }
         }
 
         return true;

@@ -1,15 +1,19 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
 import pt.up.fc.dcc.ssd.a.Config;
+import pt.up.fc.dcc.ssd.a.p2p.Network;
+import pt.up.fc.dcc.ssd.a.utils.Challenge;
 
 import java.util.Random;
 
 public class MinerWorker implements Runnable{
     BlockChain bl;
+    Network net;
     boolean reset;
 
-    MinerWorker(BlockChain bl){
+    MinerWorker(BlockChain bl, Network net){
         this.bl = bl;
+        this.net = net;
         this.reset = false;
     }
 
@@ -35,11 +39,16 @@ public class MinerWorker implements Runnable{
 
                 while (!reset) {
                     blockBuilder.setNonce(rand.nextLong());
-
+                    byte[] hash = blockBuilder.getBlockHash();
+                    int zeros = Challenge.countZeros(hash);
+                    if(zeros >= Config.zeros){
+                        break;
+                    }
                 }
 
                 if(!reset){
-
+                    bl.addNewBlock(blockBuilder.build());
+                    net.gossipBlock(blockBuilder.build());
                 }
             }
 
