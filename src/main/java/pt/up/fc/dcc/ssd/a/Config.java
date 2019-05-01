@@ -15,6 +15,8 @@ public class Config {
     public static int SPREAD_BLOCK_POINT = -1000;
     public static int SPREAD_FALSE_BLOCK = 2000;
 
+    public static int confidence_update_time = 60*1000;
+    public static int check_blockchain = 60*1000;
 
     public static String ipv4;
 }

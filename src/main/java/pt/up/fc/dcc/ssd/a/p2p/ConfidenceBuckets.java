@@ -20,7 +20,7 @@ public class ConfidenceBuckets implements Iterable<Node>{
         }
 
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new ConfidenceUpdate(this),  2*60*1000, 2*60*1000);
+        timer.scheduleAtFixedRate(new ConfidenceUpdate(this),  Config.confidence_update_time, Config.confidence_update_time);
     }
 
     void addP2PNode(Node newNode){

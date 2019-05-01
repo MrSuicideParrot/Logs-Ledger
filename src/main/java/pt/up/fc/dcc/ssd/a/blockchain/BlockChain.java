@@ -18,8 +18,11 @@ public class BlockChain {
     Lock logPoolLock;
 
     BlockType lastBlock;
+
     LinkedList<BlockType> blockChain;
     HashSet<byte []> blocks;
+    Lock blockChainLock;
+
     BlockType genBlock;
     Network network;
     SecureRandom random;
@@ -29,11 +32,17 @@ public class BlockChain {
     public BlockChain(Network network) {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
+
         blockChain = new LinkedList<>();
         blocks = new HashSet<>();
+        blockChainLock = new ReentrantLock();
+
         genesisBlockGen();
         this.network = network;
         random = new SecureRandom();
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new BlockchainUpdate(this),  Config.check_blockchain, Config.check_blockchain);
     }
 
     private void genesisBlockGen() {
@@ -99,21 +108,27 @@ public class BlockChain {
         byte[] hashBlock = newBlock.getHash().toByteArray();
         int index = newBlock.getBlockSign().getData().getIndex();
 
+        blockChainLock.lock();
         if(index == this.getMaxIndex()+1){
             if(BlockBuilder.confirmBlock(blockChain.getLast().getHash().toByteArray(), newBlock)){
                 lastBlock = newBlock;
                 blocks.add(hashBlock);
                 blockChain.addLast(newBlock);
+                blockChainLock.unlock();
                 return true;
             }
         }
-        else if(index < this.getMaxIndex()){
-            if(BlockBuilder.confirmBlock(blockChain.get(index-1).getHash().toByteArray(), newBlock)){
-                if(!Arrays.equals(blockChain.get(index).getHash().toByteArray(),hashBlock)){
-                    // TODO fork na blockchain
+        blockChainLock.unlock();
+        /*else {
+            blockChainLock.unlock();
+            if (index < this.getMaxIndex()) {
+                if (BlockBuilder.confirmBlock(blockChain.get(index - 1).getHash().toByteArray(), newBlock)) {
+                    if (!Arrays.equals(blockChain.get(index).getHash().toByteArray(), hashBlock)) {
+                        // TODO fork na blockchain
+                    }
                 }
             }
-        }
+        }*/
         return false;
     }
 
@@ -206,6 +221,7 @@ public class BlockChain {
                     }
                 }
 
+                blockChainLock.lock();
                 try {
                     // TODO codigo trolha melhorar
                     while (true){
@@ -215,6 +231,8 @@ public class BlockChain {
                 catch (IndexOutOfBoundsException e){
 
                 }
+                blockChainLock.unlock();
+
                 updateBlockChain((Node[]) approvedNodes.toArray());
 
             }
