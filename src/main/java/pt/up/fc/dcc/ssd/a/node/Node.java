@@ -43,14 +43,15 @@ public class Node {
         serverBuilder = ServerBuilder.forPort(port);
 
         sec = new SecureModule();
-        block = new BlockChain(net);
-        net = new Network(sec, block);
 
         Config.ipv4 = IPGetter.getIP();
     }
 
     void start() throws IOException {
         nodeID = initialize();
+        block = new BlockChain();
+        net = new Network(sec, block);
+        block.setNetwork(net);
         logger.info("Id received: "+Challenge.bytesToHex(nodeID));
 
 

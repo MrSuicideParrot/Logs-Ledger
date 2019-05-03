@@ -5,7 +5,6 @@ import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.p2p.Node;
 import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
-import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 
 import java.security.SecureRandom;
@@ -32,7 +31,7 @@ public class BlockChain {
 
     private static final Logger logger = Logger.getLogger(BlockChain.class.getName());
 
-    public BlockChain(Network network) {
+    public BlockChain() {
         this.logPool = new HashSet<LogType>();
         logPoolLock = new ReentrantLock();
 
@@ -41,7 +40,6 @@ public class BlockChain {
         blockChainLock = new ReentrantLock();
 
         genesisBlockGen();
-        this.network = network;
         random = new SecureRandom();
 
         Timer timer = new Timer();
@@ -297,5 +295,9 @@ public class BlockChain {
 
     public BlockType getBlock(int index) {
         return blockChain.get(index);
+    }
+
+    public void setNetwork(Network net) {
+        this.network = net;
     }
 }
