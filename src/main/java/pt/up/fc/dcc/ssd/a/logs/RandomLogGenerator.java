@@ -1,6 +1,7 @@
 package pt.up.fc.dcc.ssd.a.logs;
 
 import com.google.protobuf.ByteString;
+import pt.up.fc.dcc.ssd.a.blockchain.BlockChain;
 import pt.up.fc.dcc.ssd.a.blockchain.LogType;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 
@@ -21,16 +22,18 @@ public class RandomLogGenerator implements Runnable{
     public int min;
     public int max;
     private Network net;
+    private BlockChain blC;
 
     public RandomLogGenerator(){
         this.min = 5000;
         this.max = 30000;
     }
 
-    public RandomLogGenerator(int min, int max, Network net){
+    public RandomLogGenerator(int min, int max, Network net, BlockChain blC){
         this.min = min*1000;
         this.max = max*1000;
         this.net = net;
+        this.blC = blC;
     }
 
     @Override
@@ -45,7 +48,9 @@ public class RandomLogGenerator implements Runnable{
                 data_builder.setData(ByteString.copyFrom(log.getBytes()));
                 data_builder.setTimestamp(System.currentTimeMillis() / 1000L);
 
-                net.gossipLog(builder.build());
+                LogType newLog = builder.build();
+                blC.addLogToPool(newLog);
+                net.gossipLog(newLog);
 
                 logger.info("Created log: \"" + log + "\"");
                 logger.info("Next log will be created in "+ (float)sleepTime/1000 + "seconds.");

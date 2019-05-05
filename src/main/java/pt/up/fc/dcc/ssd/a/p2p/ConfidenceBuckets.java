@@ -1,10 +1,10 @@
 package pt.up.fc.dcc.ssd.a.p2p;
 
-import java.util.Timer;
+import java.util.*;
+
 import pt.up.fc.dcc.ssd.a.Config;
 
 import java.security.SecureRandom;
-import java.util.Iterator;
 
 public class ConfidenceBuckets implements Iterable<Node>{
     Bucket[] buckets;
@@ -36,7 +36,12 @@ public class ConfidenceBuckets implements Iterable<Node>{
 
     @Override
     public Iterator<Node> iterator() {
-        return null;
+        Set<Node> allNodes = new HashSet<>();
+
+        for (Bucket i : buckets){
+            allNodes.addAll(i.getAllNodes());
+        }
+        return allNodes.iterator();
     }
 
     Node[] getConfidenceNodes() {

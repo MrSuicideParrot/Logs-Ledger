@@ -6,9 +6,13 @@ import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 
+import java.util.logging.Logger;
+
 public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBase {
     BlockChain m;
     Network n;
+
+    private static final Logger logger = Logger.getLogger(BlockService.class.getName());
 
     BlockService(BlockChain m, Network n){
         this.m = m;
@@ -20,7 +24,7 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         Hello myHello = n.getHello();
         responseObserver.onNext(myHello);
         responseObserver.onCompleted();
-
+        logger.info("Receive new hello from:" + request.getHello().getIpv4());
         n.addP2P(request);
     }
 

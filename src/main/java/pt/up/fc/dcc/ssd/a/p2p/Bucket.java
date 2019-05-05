@@ -1,9 +1,6 @@
 package pt.up.fc.dcc.ssd.a.p2p;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,7 +46,13 @@ class Bucket {
     }
 
     Node getBestNode(){
-        return bucket.first();
+        try {
+            return bucket.first();
+        }
+        catch (NoSuchElementException e){
+            return null;
+        }
+
     }
 
 
@@ -57,6 +60,10 @@ class Bucket {
         lock.lock();
         bucket = Collections.synchronizedSortedSet(new TreeSet(bucket));
         lock.unlock();
+    }
+
+    Set<Node> getAllNodes(){
+        return bucket;
     }
 
 

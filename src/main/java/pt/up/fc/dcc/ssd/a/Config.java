@@ -1,7 +1,7 @@
 package pt.up.fc.dcc.ssd.a;
 
 public class Config {
-    public final static int maxLogs = 10;
+    public final static int maxLogs = 5;
     public final static String pubKeyFile = "pubKey.der";
     public final static String privKeyFile = "privKey.der";
     public final static int port = 3423;
@@ -20,4 +20,6 @@ public class Config {
     public static int check_blockchain = 60*1000;
 
     public static String ipv4;
+    public static int number_of_ips;
+    public static long sleep_time_miner = 20*1000;
 }

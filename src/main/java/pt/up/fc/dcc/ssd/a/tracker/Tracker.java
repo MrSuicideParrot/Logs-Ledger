@@ -2,6 +2,7 @@ package pt.up.fc.dcc.ssd.a.tracker;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.ChallengeResponse;
 import pt.up.fc.dcc.ssd.a.utils.IPGetter;
@@ -36,7 +37,7 @@ public class Tracker {
             HashMap<byte[],String> nodes = new HashMap<>();
             SecureRandom r = new SecureRandom();
             byte[] next = null;
-            while(nodes.size() < 20 && nodes.size() < nodeIdMap.size()){
+            while(nodes.size() < Config.number_of_ips && nodes.size() < nodeIdMap.size()){
                 next = keys.get(r.nextInt(keys.size()));
                 nodes.put(next, (String)nodeIdMap.get(next));
             }

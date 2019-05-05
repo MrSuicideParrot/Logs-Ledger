@@ -9,6 +9,7 @@ import io.grpc.ServerBuilder;
 
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.BlockChain;
+import pt.up.fc.dcc.ssd.a.logs.RandomLogGenerator;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.tracker.*;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
@@ -60,6 +61,10 @@ public class Node {
 
         server = serverBuilder.build();
         server.start();
+
+
+        new Thread(new RandomLogGenerator(10,30,net, block)).start();
+
     }
 
     private void blockUntilShutdown() throws InterruptedException {

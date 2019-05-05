@@ -29,6 +29,8 @@ public class BlockChain {
 
     int lastRepuCheckedBlock;
 
+    MinerWorker miner;
+
     private static final Logger logger = Logger.getLogger(BlockChain.class.getName());
 
     public BlockChain() {
@@ -44,6 +46,7 @@ public class BlockChain {
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new BlockchainUpdate(this),  Config.check_blockchain, Config.check_blockchain);
+
         logger.info("BlockChain initialized");
     }
 
@@ -84,9 +87,11 @@ public class BlockChain {
     }
 
     void removeLogsFromPool(LogType[] logs) {
+        logPoolLock.lock();
         for (LogType i : logs) {
             logPool.remove(i);
         }
+        logPoolLock.unlock();
     }
 
     public int getMaxIndex() {
@@ -183,7 +188,7 @@ public class BlockChain {
 
         boolean resp = true;
 
-        for (int i = 0 ; i < checkNum; ++i) {
+        for (int i = 0 ; i < checkNum && blockChain.size()>checkNum; ++i) {
             BlockType candidate = getBlock(index);
             ByteString hash = valuer.getHashBlockByIndex(index);
             resp = resp & hash.equals(candidate.getHash());
@@ -299,5 +304,7 @@ public class BlockChain {
 
     public void setNetwork(Network net) {
         this.network = net;
+        miner = new MinerWorker(this, network);
+        new Thread(miner).start();
     }
 }
