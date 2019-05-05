@@ -49,9 +49,10 @@ public class Node {
     }
 
     void start() throws IOException {
-        nodeID = initialize();
+        HashMap<byte[],String> m = initialize();
         block = new BlockChain();
         net = new Network(sec, block);
+        net.initializeNodes(m);
         block.setNetwork(net);
         logger.info("Id received: "+Challenge.bytesToHex(nodeID));
 
@@ -77,7 +78,7 @@ public class Node {
      * Contacta bootstrap node
      * @return id do no
      */
-    byte[] initialize(){
+    HashMap<byte[],String> initialize(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(Config.trackerIp,port+1).usePlaintext().build();
         TrackerServerGrpc.TrackerServerBlockingStub blockingStub = TrackerServerGrpc.newBlockingStub(channel);
 
@@ -95,15 +96,17 @@ public class Node {
         Config.myID = id;
         nodeID = id;
 
+        HashMap<byte[],String> m = new HashMap<>();
+
         ByteArrayInputStream byteIn = new ByteArrayInputStream(answer.getNodeMap().toByteArray());
         try {
             ObjectInputStream in = new ObjectInputStream(byteIn);
-             net.initializeNodes((HashMap<byte[], String>) in.readObject());
+            m = (HashMap<byte[], String>) in.readObject();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return id;
+        return m;
     }
 
 //    static InetAddress getMyIP(){
