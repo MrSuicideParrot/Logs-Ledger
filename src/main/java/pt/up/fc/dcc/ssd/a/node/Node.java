@@ -125,6 +125,13 @@ public class Node {
 
 
     public static void main(String[] args) throws Exception{
+        if(args.length != 1){
+            logger.severe("No tracker ip on argv");
+            System.exit(1);
+        }
+
+        Config.trackerIp = args[0];
+
         Node no = new Node();
         no.start();
         no.blockUntilShutdown();
