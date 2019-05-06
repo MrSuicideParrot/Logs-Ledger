@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static pt.up.fc.dcc.ssd.a.utils.IPGetter.getIP;
@@ -94,7 +95,11 @@ public class Node {
             answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
         }
 
-        channel.shutdown();
+        try {
+            channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         Config.myID = id;
         nodeID = id;
