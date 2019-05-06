@@ -93,6 +93,9 @@ public class Node {
 
             answer = blockingStub.getAnswer(challengeAnswer.newBuilder().setIpv4(myIP).setId(ByteString.copyFrom(id)).build());
         }
+
+        channel.shutdown();
+
         Config.myID = id;
         nodeID = id;
 

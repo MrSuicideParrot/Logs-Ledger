@@ -20,7 +20,7 @@ public class TrackerService extends pt.up.fc.dcc.ssd.a.tracker.TrackerServerGrpc
     @Override
     public void getAnswer(challengeAnswer request, StreamObserver<challengeValidation> responseObserver) {
         ChallengeResponse r = Tracker.isIdValid(request.getId().toByteArray(),request.getIpv4());
-        challengeValidation reply = null;
+        challengeValidation reply;
         if(r.ans) {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             try {
