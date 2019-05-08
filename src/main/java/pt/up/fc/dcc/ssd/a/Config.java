@@ -20,6 +20,6 @@ public class Config {
     public static int check_blockchain = 60*1000;
 
     public static String ipv4;
-    public static int number_of_ips;
+    public static int number_of_ips = 20;
     public static long sleep_time_miner = 20*1000;
 }
