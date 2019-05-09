@@ -112,7 +112,6 @@ public class Node {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        channel.shutdown();
         return m;
     }
 

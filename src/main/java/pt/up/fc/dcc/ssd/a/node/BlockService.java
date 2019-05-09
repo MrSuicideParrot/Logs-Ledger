@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
+import pt.up.fc.dcc.ssd.a.p2p.Gossip;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 
 import java.util.logging.Logger;
@@ -64,11 +65,13 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
+        logger.info("Novo log recebido");
         boolean added = m.addLogToPool(request.getLog());
         if(added){
-            n.gossipLog(request.getLog());
+            new Thread(new Gossip(n,request.getLog())).start();
         }
-
+        else
+            logger.info("Log já tinha sido recebido");
     }
 
     @Override
@@ -83,6 +86,7 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
 
             boolean added = m.addNewBlock(request.getBlock());
             if (added) {
+                new Thread(new Gossip(n, request.getBlock())).start();
                 n.gossipBlock(request.getBlock());
             }
         }

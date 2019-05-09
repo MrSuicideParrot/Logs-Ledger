@@ -8,8 +8,8 @@ import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.node.SecureModule;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -48,6 +48,7 @@ public class Network {
     }
 
     public void gossipLog(LogType log){
+        logger.info("Gossip do log iniciado :" + Arrays.toString(log.getAssin().toByteArray()));
 
         LogGossip.Builder builder = LogGossip.newBuilder();
         builder.setLog(log);
@@ -61,6 +62,7 @@ public class Network {
     }
 
     public void gossipBlock(BlockType block){
+        logger.info("Gossip do bloco iniciado :"+ Arrays.toString(block.getHash().toByteArray()));
 
         BlockGossip.Builder builder = BlockGossip.newBuilder();
         builder.setBlock(block);
@@ -122,7 +124,7 @@ public class Network {
 
         ManagedChannel chanel = chanelBuilder.build();
         BlockChainServiceGrpc.BlockChainServiceStub asyncStub = BlockChainServiceGrpc.newStub(chanel);
-        asyncStub.helloNode(myHello, new HelloObserver(this));
+        asyncStub.helloNode(myHello, new HelloObserver(this, chanel ));
     }
 
     public Node[] getConfidenceNodes(){
