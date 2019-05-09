@@ -34,7 +34,7 @@ public class Node  implements Comparable<Node>{
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
     Node(byte[] id, String host, PublicKey pubKey) {
-        this(id, host, pubKey, Config.port);
+        this(id, host, pubKey, Config.port_node);
     }
 
     Node(byte[] id, String host, PublicKey pubKey, int port) {
@@ -80,6 +80,7 @@ public class Node  implements Comparable<Node>{
             @Override
             public void onError(Throwable throwable) {
                 logger.warning("Erro a enviar log");
+                logger.warning(throwable.toString());
             }
 
             @Override

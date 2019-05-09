@@ -4,7 +4,8 @@ public class Config {
     public final static int maxLogs = 5;
     public final static String pubKeyFile = "pubKey.der";
     public final static String privKeyFile = "privKey.der";
-    public final static int port = 3423;
+    public final static int port_node = 3423;
+    public  final static int port_tracker = 3424;
     public final static int nBuckets = 6;
     public final static int k = 10; // numero de contactos por bucket
     public final static int alpha = 3;

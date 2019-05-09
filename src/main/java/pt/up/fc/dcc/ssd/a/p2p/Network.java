@@ -100,7 +100,7 @@ public class Network {
                     PublicKey candCert = SecureModule.getPublicKey(con.getPublicKey().toByteArray());
                     if(SecureModule.verifySign(h.getHello().toByteArray(), h.getAssin().toByteArray(), candCert)){
                         Node no = new Node(con.getNodeID().toByteArray(),con.getIpv4(),pubKey);
-
+                        logger.info("New node created " + con.getIpv4());
                         lock.lock();
                         nodes.put(con.getNodeID().toByteArray(), no);
                         conf.addP2PNode(no);
@@ -117,7 +117,7 @@ public class Network {
     }
 
     public void firstContactNode(String ip){
-        ManagedChannelBuilder chanelBuilder = ManagedChannelBuilder.forAddress(ip, Config.port);
+        ManagedChannelBuilder chanelBuilder = ManagedChannelBuilder.forAddress(ip, Config.port_node);
         chanelBuilder.usePlaintext();
 
         ManagedChannel chanel = chanelBuilder.build();

@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import static pt.up.fc.dcc.ssd.a.utils.IPGetter.getIP;
 
 public class Node {
-    final static int port = 34832;
     private byte[] nodeID;
     static String myIP;
 
@@ -42,7 +41,7 @@ public class Node {
 
     public Node(){
         myIP = getIP();
-        serverBuilder = ServerBuilder.forPort(port);
+        serverBuilder = ServerBuilder.forPort(Config.port_node);
 
         sec = new SecureModule();
 
@@ -80,7 +79,7 @@ public class Node {
      * @return id do no
      */
     HashMap<byte[],String> initialize(){
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(Config.trackerIp,port+1).usePlaintext().build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(Config.trackerIp,Config.port_tracker).usePlaintext().build();
         TrackerServerGrpc.TrackerServerBlockingStub blockingStub = TrackerServerGrpc.newBlockingStub(channel);
 
         challenge zeros = blockingStub.idRequest(empty.newBuilder().build());
@@ -113,7 +112,7 @@ public class Node {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        channel.shutdown();
         return m;
     }
 

@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 public class Tracker {
     final static int zeros = 20;
-    final static int port = 34833;
     private String myIP;
     private ServerBuilder serverBuilder;
     private Server server;
@@ -28,7 +27,7 @@ public class Tracker {
     Tracker(){
         myIP = IPGetter.getIP();
 
-        serverBuilder = ServerBuilder.forPort(port);
+        serverBuilder = ServerBuilder.forPort(Config.port_tracker);
     }
 
     public static ChallengeResponse isIdValid(byte[] id, String ip){
@@ -51,7 +50,7 @@ public class Tracker {
     public void start() throws IOException {
         server = serverBuilder.addService(new TrackerService(zeros)).build();
         server.start();
-        logger.info("Server started, listening on " + port);
+        logger.info("Server started, listening on " + Config.port_tracker);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
