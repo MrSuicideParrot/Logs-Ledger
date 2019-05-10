@@ -4,6 +4,8 @@ import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -29,13 +31,35 @@ public class MinerWorker implements Runnable{
         while (true){
 
             if(bl.logPool.size() >= Config.maxLogs) {
-                logger.info("Mining a block");
-               BlockBuilder blockBuilder = new BlockBuilder(
-                       this.bl.getMaxIndex()+1,
-                       this.bl.getLastBlockHash(),
-                       System.currentTimeMillis() / 1000L);
+                bl.logPoolLock.lock();
+                bl.blockChainLock.lock();
+                HashSet<LogType> l = new HashSet<>();
+                for(BlockType b : bl.blockChain){
+                   l.addAll(b.getBlockSign().getData().getLogsList());
+                }
 
                 LogType[] logs = this.bl.getLogsToMine();
+                ArrayList<LogType> dups = new ArrayList<>();
+
+                for(LogType i : logs){
+                    if(l.contains(i)){
+                        dups.add(i);
+                    }
+                }
+                LogType[] temp = new LogType[dups.size()];
+                bl.removeLogsFromPool(dups.toArray(temp));
+                if(bl.logPool.size() < Config.maxLogs){
+                    bl.logPoolLock.unlock();
+                    bl.blockChainLock.unlock();
+                    logger.info("Contained already mined logs. Restarting mining process.");
+                    continue;
+                }
+
+                logger.info("Mining a block");
+                BlockBuilder blockBuilder = new BlockBuilder(
+                        this.bl.getMaxIndex()+1,
+                        this.bl.getLastBlockHash(),
+                        System.currentTimeMillis() / 1000L);
 
                 for (LogType i : logs){
                     blockBuilder.addLog(i);
@@ -61,6 +85,9 @@ public class MinerWorker implements Runnable{
 
                     bl.removeLogsFromPool(logs);
                 }
+
+                bl.logPoolLock.unlock();
+                bl.blockChainLock.unlock();
             }
             try {
              sleep(Config.sleep_time_miner);
