@@ -55,15 +55,19 @@ public class Node {
         net.initializeNodes(m);
         block.setNetwork(net);
         logger.info("Id received: "+Challenge.bytesToHex(nodeID));
-
-
         /** Add services **/
         serverBuilder.addService(new BlockService(block, net));
 
         server = serverBuilder.build();
         server.start();
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        //block.findAndResolveBlockChainFork(0);
         new Thread(new RandomLogGenerator(10,30,net, block)).start();
 
     }

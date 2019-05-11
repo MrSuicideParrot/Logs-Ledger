@@ -6,17 +6,20 @@ import io.grpc.ManagedChannelBuilder;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.node.SecureModule;
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
+import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 public class Network {
 
-    HashMap<byte[], Node> nodes;
+    HashMap<Byte[], Node> nodes;
     ConfidenceBuckets conf;
     Hello myHello;
     SecureModule sec;
@@ -48,7 +51,7 @@ public class Network {
     }
 
     public void gossipLog(LogType log){
-        logger.info("Gossip do log iniciado :" + Arrays.toString(log.getAssin().toByteArray()));
+        logger.info("Gossip do log iniciado: " + ArrayTools.bytesToHex(CriptoTools.hash(log.toByteArray())));
 
         LogGossip.Builder builder = LogGossip.newBuilder();
         builder.setLog(log);
@@ -62,7 +65,7 @@ public class Network {
     }
 
     public void gossipBlock(BlockType block){
-        logger.info("Gossip do bloco iniciado :"+ Arrays.toString(block.getHash().toByteArray()));
+        logger.info("Gossip do bloco iniciado: "+  ArrayTools.bytesToHex(CriptoTools.hash(block.toByteArray())));
 
         BlockGossip.Builder builder = BlockGossip.newBuilder();
         builder.setBlock(block);
@@ -101,10 +104,10 @@ public class Network {
                 if(SecureModule.verifySign(con.toByteArray(),h.getAssin().toByteArray(), pubKey)){
                     PublicKey candCert = SecureModule.getPublicKey(con.getPublicKey().toByteArray());
                     if(SecureModule.verifySign(h.getHello().toByteArray(), h.getAssin().toByteArray(), candCert)){
-                        Node no = new Node(con.getNodeID().toByteArray(),con.getIpv4(),pubKey);
+                        Node no = new Node(con.getNodeID().toByteArray(),con.getIpv4(),pubKey, this);
                         logger.info("New node created " + con.getIpv4());
                         lock.lock();
-                        nodes.put(con.getNodeID().toByteArray(), no);
+                        nodes.put(ArrayTools.toAdvance(con.getNodeID().toByteArray()), no);
                         conf.addP2PNode(no);
                         lock.unlock();
                     }
@@ -127,11 +130,17 @@ public class Network {
         asyncStub.helloNode(myHello, new HelloObserver(this, chanel ));
     }
 
-    public Node[] getConfidenceNodes(){
+    public List<Node> getConfidenceNodes(){
         return conf.getConfidenceNodes();
     }
+
     public void getRandomNodes(int n){
 
+    }
+
+    void removeNodes(byte[] id, Node node){
+        Node t = nodes.remove(id);
+        conf.remove(id, node);
     }
 }
 

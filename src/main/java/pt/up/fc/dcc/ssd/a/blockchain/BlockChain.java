@@ -5,6 +5,7 @@ import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.p2p.Node;
 import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
+import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 
 import java.security.SecureRandom;
@@ -61,7 +62,7 @@ public class BlockChain {
         logPoolLock.lock();
         if (logPool.add(l)) {
             logPoolLock.unlock();
-            logger.info("Log added to log pool");
+            logger.info("Log added to log pool: "+ ArrayTools.bytesToHex(CriptoTools.hash(l.toByteArray())));
             return true;
         } else {
             logPoolLock.unlock();
@@ -123,7 +124,7 @@ public class BlockChain {
                 blocks.add(hashBlock);
                 blockChain.addLast(newBlock);
                 blockChainLock.unlock();
-                logger.info("New block added to blockchain");
+                logger.info("New block added to blockchain: "+  ArrayTools.bytesToHex(CriptoTools.hash(newBlock.toByteArray())));
                 return true;
             }
         }
@@ -165,7 +166,7 @@ public class BlockChain {
     }
 
     int checkBlockChain(int initial) {
-        Node[] nC = network.getConfidenceNodes();
+        List<Node> nC = network.getConfidenceNodes();
 
 
         for(int i = initial; i <= this.getMaxIndex();  ++i ){
@@ -179,16 +180,22 @@ public class BlockChain {
     }
 
     boolean checkBlock(int index){
-        Node[] nC = network.getConfidenceNodes();
+        List<Node> nC = network.getConfidenceNodes();
         return checkBlock(index, nC, 2);
     }
 
-    boolean checkBlock(int index, Node[] nC, int checkNum){
-        Node valuer =  nC[random.nextInt(nC.length)];
+    boolean checkBlock(int index, List<Node>nC, int checkNum){
 
         boolean resp = true;
 
-        for (int i = 0 ; i < checkNum && blockChain.size()>checkNum; ++i) {
+        if(checkNum > nC.size()){
+            checkNum = nC.size();
+        }
+
+        for (int i = 0 ; i < checkNum ; ++i) { // Verificar
+
+            Node valuer =  (Node) ArrayTools.pickRandom(nC);
+
             BlockType candidate = getBlock(index);
             ByteString hash = valuer.getHashBlockByIndex(index);
             resp = resp & hash.equals(candidate.getHash());
@@ -196,16 +203,15 @@ public class BlockChain {
         return resp;
     }
 
-    void findAndResolveBlockChainFork(int index){
-        if(index>1) {
-            int badBlock = -1;
+    public void findAndResolveBlockChainFork(int index) {
+        int badBlock = -1;
 
-            for (int i = index; i > 0; --i) {
-               if(checkBlock(i)){
-                   badBlock = i + 1;
-                   break;
-               }
+        for (int i = index; i >= 0; --i) {
+            if (checkBlock(i)) {
+                badBlock = i + 1;
+                break;
             }
+        }
 
             /*
             Identificada a localização do fork
@@ -213,57 +219,52 @@ public class BlockChain {
             Em caso de empate escolhemos a que esteja em maior numero nos nos de confiança - TODO Fazer numero de nós impares
              */
 
-            Node[] nC = network.getConfidenceNodes();
-            LinkedList<ByteString> blocks = new LinkedList<>();
+        List<Node> nC = network.getConfidenceNodes();
+        LinkedList<ByteString> blocks = new LinkedList<>();
 
-            for(Node i : nC){
-                blocks.add(i.getHashBlockByIndex(badBlock));
-            }
-
-            ByteString mostHash = (ByteString)ArrayTools.mode(blocks.toArray());
-            LinkedList<Node> approvedNodes = new LinkedList<>();
-
-            if(!mostHash.equals(blockChain.get(badBlock))){
-                for(int i= 0; i < blocks.size(); ++i){
-                    if(mostHash.equals(blocks.get(i))){
-                        approvedNodes.add(nC[i]);
-                    }
-                }
-
-                blockChainLock.lock();
-                try {
-                    // TODO codigo trolha melhorar
-                    while (true){
-                        blocks.remove(blockChain.remove(badBlock));
-                    }
-                }
-                catch (IndexOutOfBoundsException e){
-
-                }
-                blockChainLock.unlock();
-
-                updateBlockChain((Node[]) approvedNodes.toArray());
-
-            }
-        }
-        else{
-            //TODO caso seja no inicio
+        for (Node i : nC) {
+            blocks.add(i.getHashBlockByIndex(badBlock));
         }
 
+        ByteString mostHash = (ByteString) ArrayTools.mode(blocks.toArray());
+        LinkedList<Node> approvedNodes = new LinkedList<>();
+
+        if (!mostHash.equals(blockChain.get(badBlock))) {
+            for (int i = 0; i < blocks.size(); ++i) {
+                if (mostHash.equals(blocks.get(i))) {
+                    approvedNodes.add(nC.get(i));
+                }
+            }
+
+            blockChainLock.lock();
+            try {
+                // TODO codigo trolha melhorar
+                while (true) {
+                    blocks.remove(blockChain.remove(badBlock));
+                }
+            } catch (IndexOutOfBoundsException e) {
+
+            }
+            blockChainLock.unlock();
+
+            updateBlockChain(approvedNodes);
+
+        }
     }
 
+
     void updateBlockChain(){
-        Node[] n = network.getConfidenceNodes();
+        List<Node> n = network.getConfidenceNodes();
         updateBlockChain(n);
 
     }
 
-    void updateBlockChain(Node[] n) {
+    void updateBlockChain(List<Node> n) {
 
         Integer[] result = new Integer[Config.nBuckets];
 
         for (int i=0; i < Config.nBuckets; ++i){
-            result[i] = n[i].getMaxBlockIndex();
+            result[i] = n.get(i).getMaxBlockIndex();
         }
 
         Integer mode = (Integer) ArrayTools.mode(result);
@@ -274,7 +275,7 @@ public class BlockChain {
         Set<Node> nodeC = new HashSet<>();
         for (int i = 0; i <Config.nBuckets ; i++) {
             if(result[i] == mode)
-                nodeC.add(n[i]);
+                nodeC.add(n.get(i));
         }
 
 
@@ -290,7 +291,7 @@ public class BlockChain {
 
                 BlockType candidate = contact.getBlockByIndex(i);
                 if(!addNewBlock(candidate)){
-                    //Correu algo mal
+                    logger.severe("Falhou o update BlockChain");
                 }
 
             }

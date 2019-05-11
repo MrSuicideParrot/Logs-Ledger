@@ -70,8 +70,8 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         if(added){
             new Thread(new Gossip(n,request.getLog())).start();
         }
-        else
-            logger.info("Log já tinha sido recebido");
+       /* else
+            logger.info("Log já tinha sido recebido");*/
     }
 
     @Override
@@ -79,7 +79,8 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        if(m.contains(request.getBlock().getHash().toByteArray())) {
+        logger.info("Novo bloco recebido");
+        if(!m.contains(request.getBlock().getHash().toByteArray())) {
             /*TODO
                 Confiança
              */
@@ -87,7 +88,6 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
             boolean added = m.addNewBlock(request.getBlock());
             if (added) {
                 new Thread(new Gossip(n, request.getBlock())).start();
-                n.gossipBlock(request.getBlock());
             }
         }
     }

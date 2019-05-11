@@ -1,7 +1,6 @@
 package pt.up.fc.dcc.ssd.a.utils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ArrayTools {
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -14,6 +13,16 @@ public class ArrayTools {
         }
 
         return bytes;
+    }
+
+    public static Byte[] toAdvance(byte[] obytes){
+        Byte[] byteObjects = new Byte[obytes.length];
+
+        int i = 0;
+        for(byte b : obytes){
+            byteObjects[i++] = b;
+        }
+        return byteObjects;
     }
 
     public static String bytesToHex(byte[] bytes) {
@@ -56,5 +65,11 @@ public class ArrayTools {
         }
 
         return null;
+    }
+
+    public static Object pickRandom(List<?> l){
+        List<?> cl = new LinkedList<>(l);
+        Collections.shuffle(cl);
+        return cl.get(0);
     }
 }

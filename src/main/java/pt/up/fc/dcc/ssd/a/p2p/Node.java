@@ -19,6 +19,17 @@ public class Node  implements Comparable<Node>{
     private int port;
     private byte[] id;
     private long firstSeen;
+    private Network myNetwork;
+
+    public int getBucketIndex() {
+        return bucketIndex;
+    }
+
+    public void setBucketIndex(int bucketIndex) {
+        this.bucketIndex = bucketIndex;
+    }
+
+    private int bucketIndex;
 
     private long mistrust;
 
@@ -33,16 +44,16 @@ public class Node  implements Comparable<Node>{
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
-    Node(byte[] id, String host, PublicKey pubKey) {
-        this(id, host, pubKey, Config.port_node);
+    Node(byte[] id, String host, PublicKey pubKey, Network myNetwork) {
+        this(id, host, pubKey, myNetwork, Config.port_node);
     }
 
-    Node(byte[] id, String host, PublicKey pubKey, int port) {
+    Node(byte[] id, String host, PublicKey pubKey, Network myNetwork, int port) {
         this.id = id;
         this.port = port;
         this.firstSeen = System.currentTimeMillis();
         this.pub = pubKey;
-
+        this.myNetwork = myNetwork;
         this.mistrust = firstSeen;
         lock = new ReentrantLock();
 
@@ -71,43 +82,12 @@ public class Node  implements Comparable<Node>{
 
     public void newLog(LogGossip request) {
 
-        asyncStub.newLog(request, new StreamObserver<Type.Empty>() {
-            @Override
-            public void onNext(Type.Empty empty) {
-
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.warning("Erro a enviar log");
-                logger.warning(throwable.toString());
-            }
-
-            @Override
-            public void onCompleted() {
-
-            }
-        });
+        asyncStub.newLog(request, new GossipObserver(this));
     }
 
     public void newBlock(BlockGossip request) {
 
-        asyncStub.newBlock(request, new StreamObserver<Type.Empty>() {
-            @Override
-            public void onNext(Type.Empty empty) {
-
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.warning("Erro a enviar bloco");
-            }
-
-            @Override
-            public void onCompleted() {
-
-            }
-        });
+        asyncStub.newBlock(request, new GossipObserver(this));
     }
 
     public int getMaxBlockIndex(){
@@ -125,6 +105,11 @@ public class Node  implements Comparable<Node>{
     }
 
     public ByteString getHashBlockByIndex(int index) {
+        logger.info("Searching for the block "+index);
         return blockStub.getBlockHash(BlockID.newBuilder().setIndex(index).build()).getBlockHash();
+    }
+
+    public Network getNetwork() {
+        return this.myNetwork;
     }
 }
