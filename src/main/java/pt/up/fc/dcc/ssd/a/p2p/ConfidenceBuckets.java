@@ -2,6 +2,7 @@ package pt.up.fc.dcc.ssd.a.p2p;
 
 import java.util.*;
 
+import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.Config;
 
 import java.security.SecureRandom;
@@ -56,7 +57,7 @@ public class ConfidenceBuckets implements Iterable<Node>{
         return nodesConf;
     }
 
-    public void remove(byte[] id, Node node) {
+    public void remove(Node node) {
         buckets[node.getBucketIndex()].lock();
         buckets[node.getBucketIndex()].remove(node);
         buckets[node.getBucketIndex()].unlock();

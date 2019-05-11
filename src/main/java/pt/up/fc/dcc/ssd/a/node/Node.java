@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import static pt.up.fc.dcc.ssd.a.utils.IPGetter.getIP;
 
 public class Node {
-    private byte[] nodeID;
+    private ByteString nodeID;
     static String myIP;
 
     private SecureModule sec;
@@ -54,7 +54,7 @@ public class Node {
         net = new Network(sec, block);
         net.initializeNodes(m);
         block.setNetwork(net);
-        logger.info("Id received: "+Challenge.bytesToHex(nodeID));
+        logger.info("Id received: "+Challenge.bytesToHex(nodeID.toByteArray()));
         /** Add services **/
         serverBuilder.addService(new BlockService(block, net));
 
@@ -104,8 +104,8 @@ public class Node {
             e.printStackTrace();
         }
 
-        Config.myID = id;
-        nodeID = id;
+        Config.myID = ByteString.copyFrom(id);
+        nodeID = ByteString.copyFrom(id);
 
         HashMap<byte[],String> m = new HashMap<>();
 

@@ -2,10 +2,12 @@ package pt.up.fc.dcc.ssd.a.node;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
 import pt.up.fc.dcc.ssd.a.p2p.Gossip;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
+import pt.up.fc.dcc.ssd.a.p2p.Node;
 
 import java.util.logging.Logger;
 
@@ -79,15 +81,28 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        logger.info("Novo bloco recebido");
-        if(!m.contains(request.getBlock().getHash().toByteArray())) {
-            /*TODO
-                Confiança
-             */
+        Node nodeCand = n.getNodeID(request.getNodeID());
+        if(nodeCand != null) {
+            boolean ver = nodeCand.verifyAssin(request.getBlock().toByteArray(),request.getAssin().toByteArray());
 
-            boolean added = m.addNewBlock(request.getBlock());
-            if (added) {
-                new Thread(new Gossip(n, request.getBlock())).start();
+            if(ver) {
+                logger.info("Novo bloco recebido");
+                if (!m.contains(request.getBlock().getHash())) {
+
+
+                    boolean added = m.addNewBlock(request.getBlock(), nodeCand);
+                    if (added) {
+                        new Thread(new Gossip(n, request.getBlock())).start();
+                    }
+                    else {
+                        // Mau pedido
+                        nodeCand.changeMistrust(Config.REJECTED_BLOCK);
+                    }
+                }
+                else{
+                    //Bloco ja existe confirmaste a sua existencia
+                    nodeCand.changeMistrust(Config.CONFIRM_BLOCK);
+                }
             }
         }
     }

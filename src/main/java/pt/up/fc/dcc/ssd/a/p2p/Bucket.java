@@ -1,5 +1,7 @@
 package pt.up.fc.dcc.ssd.a.p2p;
 
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
+
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -67,5 +69,9 @@ class Bucket {
     }
 
 
-
+    public void printBucket() {
+        for (Node i : bucket){
+            System.out.println(ArrayTools.bytesToHex(i.getId()) + " -> " + i.getMistrust());
+        }
+    }
 }

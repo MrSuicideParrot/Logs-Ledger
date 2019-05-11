@@ -16,5 +16,13 @@ public class ConfidenceUpdate extends TimerTask {
              conf.buckets) {
             i.updateMistrust();
         }
+
+        System.out.println("Mistrust levels");
+        for (Bucket i:
+            conf.buckets){
+            i.printBucket();
+            System.out.println();
+        }
+
     }
 }

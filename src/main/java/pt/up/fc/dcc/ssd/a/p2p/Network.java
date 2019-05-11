@@ -10,7 +10,6 @@ import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
 
 public class Network {
 
-    HashMap<Byte[], Node> nodes;
+    HashMap<ByteString, Node> nodes;
     ConfidenceBuckets conf;
     Hello myHello;
     SecureModule sec;
@@ -39,7 +38,7 @@ public class Network {
             Hello.Builder buildHello = Hello.newBuilder();
             Hello.HelloContent.Builder contentBuild =  buildHello.getHelloBuilder();
             contentBuild.setPublicKey(ByteString.copyFrom(sec.getPubEncoded()));
-            contentBuild.setNodeID(ByteString.copyFrom(Config.myID));
+            contentBuild.setNodeID(Config.myID);
             contentBuild.setIpv4(Config.ipv4);
             Hello.HelloContent con = contentBuild.build();
             byte[] assin = sec.sign(con.toByteArray());
@@ -55,7 +54,7 @@ public class Network {
 
         LogGossip.Builder builder = LogGossip.newBuilder();
         builder.setLog(log);
-        builder.setNodeID(ByteString.copyFrom(Config.myID));
+        builder.setNodeID(Config.myID);
         builder.setAssin(ByteString.copyFrom(sec.sign(log.toByteArray())));
         LogGossip pLog = builder.build();
 
@@ -69,7 +68,7 @@ public class Network {
 
         BlockGossip.Builder builder = BlockGossip.newBuilder();
         builder.setBlock(block);
-        builder.setNodeID(ByteString.copyFrom(Config.myID));
+        builder.setNodeID(Config.myID);
         builder.setAssin(ByteString.copyFrom(sec.sign(block.toByteArray())));
         //builder.set
         BlockGossip pBlock = builder.build();
@@ -104,10 +103,10 @@ public class Network {
                 if(SecureModule.verifySign(con.toByteArray(),h.getAssin().toByteArray(), pubKey)){
                     PublicKey candCert = SecureModule.getPublicKey(con.getPublicKey().toByteArray());
                     if(SecureModule.verifySign(h.getHello().toByteArray(), h.getAssin().toByteArray(), candCert)){
-                        Node no = new Node(con.getNodeID().toByteArray(),con.getIpv4(),pubKey, this);
+                        Node no = new Node(con.getNodeID(),con.getIpv4(),pubKey, this);
                         logger.info("New node created " + con.getIpv4());
                         lock.lock();
-                        nodes.put(ArrayTools.toAdvance(con.getNodeID().toByteArray()), no);
+                        nodes.put(con.getNodeID(), no);
                         conf.addP2PNode(no);
                         lock.unlock();
                     }
@@ -138,9 +137,13 @@ public class Network {
 
     }
 
-    void removeNodes(byte[] id, Node node){
+    void removeNodes(ByteString id, Node node){
         Node t = nodes.remove(id);
-        conf.remove(id, node);
+        conf.remove(node);
+    }
+
+    public pt.up.fc.dcc.ssd.a.p2p.Node getNodeID(ByteString bArr) {
+        return nodes.get(bArr);
     }
 }
 

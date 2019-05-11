@@ -22,7 +22,7 @@ public class BlockChain {
     BlockType lastBlock;
 
     LinkedList<BlockType> blockChain;
-    HashSet<byte []> blocks;
+    HashMap<ByteString, Node> blockOwnsership;
     Lock blockChainLock;
 
     BlockType genBlock;
@@ -40,8 +40,8 @@ public class BlockChain {
         logPoolLock = new ReentrantLock();
 
         blockChain = new LinkedList<>();
-        blocks = new HashSet<>();
         blockChainLock = new ReentrantLock();
+        blockOwnsership = new HashMap<>();
 
         genesisBlockGen();
         random = new SecureRandom();
@@ -56,7 +56,7 @@ public class BlockChain {
         genBlock = BlockBuilder.genesisBlock();
         lastBlock = genBlock;
         blockChain.addLast(genBlock);
-        blocks.add(genBlock.getHash().toByteArray());
+        blockOwnsership.put(genBlock.getHash(),null);
     }
 
     public boolean addLogToPool(LogType l) {
@@ -114,32 +114,48 @@ public class BlockChain {
 
     }
 
-    public boolean addNewBlock(BlockType newBlock){
-        byte[] hashBlock = newBlock.getHash().toByteArray();
+    public boolean addNewBlock(BlockType newBlock, Node owner){
+        ByteString hashBlock = newBlock.getHash();
         int index = newBlock.getBlockSign().getData().getIndex();
 
         blockChainLock.lock();
         if(index == this.getMaxIndex()+1){
             if(BlockBuilder.confirmBlock(blockChain.getLast().getHash().toByteArray(), newBlock)){
+
                 lastBlock = newBlock;
-                blocks.add(hashBlock);
                 blockChain.addLast(newBlock);
+                blockOwnsership.put(hashBlock, owner);
+
                 blockChainLock.unlock();
                 logger.info("New block added to blockchain: "+  ArrayTools.bytesToHex(CriptoTools.hash(newBlock.toByteArray())));
+
+                if(owner != null)
+                    owner.changeMistrust(Config.SPREAD_BLOCK_POINT);
+
                 return true;
+            }
+            else {
+                if(owner != null)
+                    owner.changeMistrust(Config.REJECTED_BLOCK);
+
+                blockChainLock.unlock();
+                return false;
             }
         }
         blockChainLock.unlock();
-        /*else {
-            blockChainLock.unlock();
-            if (index < this.getMaxIndex()) {
-                if (BlockBuilder.confirmBlock(blockChain.get(index - 1).getHash().toByteArray(), newBlock)) {
-                    if (!Arrays.equals(blockChain.get(index).getHash().toByteArray(), hashBlock)) {
-                        // TODO fork na blockchain
-                    }
-                }
+
+        if(index < this.getMaxIndex()){
+            if (BlockBuilder.confirmBlock(blockChain.get(index - 1).getHash().toByteArray(), newBlock)) {
+                if(owner != null)
+                    owner.changeMistrust(Config.CONFIRM_BLOCK);
             }
-        }*/
+            else {
+                if(owner != null)
+                    owner.changeMistrust(Config.REJECTED_BLOCK);
+            }
+
+        }
+
         return false;
     }
 
@@ -155,8 +171,8 @@ public class BlockChain {
         }
     }
 */
-    public boolean contains(byte[] hash){
-        return blocks.contains(hash);
+    public boolean contains(ByteString hash){
+        return blockOwnsership.containsKey(hash);
 
     }
 
@@ -273,7 +289,7 @@ public class BlockChain {
             try {
                 // TODO codigo trolha melhorar
                 while (true) {
-                    blocks.remove(blockChain.remove(badBlock));
+                    blocks.remove(this.removeBlock(badBlock));
                 }
             } catch (IndexOutOfBoundsException e) {
 
@@ -333,13 +349,25 @@ public class BlockChain {
                 contact = nodeCI.next();
 
                 BlockType candidate = contact.getBlockByIndex(i);
-                if(!addNewBlock(candidate)){
+                if(!addNewBlock(candidate, contact)){
                     logger.severe("Falhou o update BlockChain");
                 }
 
             }
 
         }
+    }
+
+    BlockType removeBlock(int index){
+        BlockType b = blockChain.remove(index);
+        try {
+            blockOwnsership.remove(b.getHash()).changeMistrust(Config.SPREAD_FALSE_BLOCK);
+        }
+        catch (NullPointerException e){
+
+        }
+
+        return b;
     }
 
     public BlockType getBlock(int index) {

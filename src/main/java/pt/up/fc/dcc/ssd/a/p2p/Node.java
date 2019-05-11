@@ -3,11 +3,11 @@ package pt.up.fc.dcc.ssd.a.p2p;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.blockchain.*;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
+import pt.up.fc.dcc.ssd.a.node.SecureModule;
 
 import java.security.PublicKey;
 import java.util.concurrent.locks.Lock;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class Node  implements Comparable<Node>{
     private int ip;
     private int port;
-    private byte[] id;
+    private ByteString id;
     private long firstSeen;
     private Network myNetwork;
 
@@ -44,11 +44,11 @@ public class Node  implements Comparable<Node>{
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
-    Node(byte[] id, String host, PublicKey pubKey, Network myNetwork) {
+    Node(ByteString id, String host, PublicKey pubKey, Network myNetwork) {
         this(id, host, pubKey, myNetwork, Config.port_node);
     }
 
-    Node(byte[] id, String host, PublicKey pubKey, Network myNetwork, int port) {
+    Node(ByteString id, String host, PublicKey pubKey, Network myNetwork, int port) {
         this.id = id;
         this.port = port;
         this.firstSeen = System.currentTimeMillis();
@@ -66,7 +66,7 @@ public class Node  implements Comparable<Node>{
     }
 
 
-    byte[] getId() {
+    ByteString getId() {
         return id;
     }
 
@@ -74,7 +74,7 @@ public class Node  implements Comparable<Node>{
         return mistrust;
     }
 
-    void changeMistrust(long val){
+    public void changeMistrust(long val){
         lock.lock();
         mistrust += val;
         lock.unlock();
@@ -110,5 +110,9 @@ public class Node  implements Comparable<Node>{
 
     public Network getNetwork() {
         return this.myNetwork;
+    }
+
+    public boolean verifyAssin(byte[] plaintext, byte[] signature){
+        return SecureModule.verifySign(plaintext, signature, pub);
     }
 }

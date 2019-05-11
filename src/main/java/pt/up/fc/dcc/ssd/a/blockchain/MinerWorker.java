@@ -79,7 +79,7 @@ public class MinerWorker implements Runnable{
                 }
 
                 if(!reset){
-                    bl.addNewBlock(blockBuilder.build());
+                    bl.addNewBlock(blockBuilder.build(), null);
                     net.gossipBlock(blockBuilder.build());
                     logger.info("Blocked was mined with success");
 

@@ -1,5 +1,7 @@
 package pt.up.fc.dcc.ssd.a.utils;
 
+import com.google.protobuf.ByteString;
+
 import java.util.*;
 
 public class ArrayTools {
@@ -23,6 +25,9 @@ public class ArrayTools {
             byteObjects[i++] = b;
         }
         return byteObjects;
+    }
+    public static String bytesToHex(ByteString bytes){
+        return bytesToHex(bytes.toByteArray());
     }
 
     public static String bytesToHex(byte[] bytes) {
