@@ -44,17 +44,18 @@ public class ArrayTools {
         for (Object i: objs) {
             int count = 0;
 
-            if (countMap.containsKey(i)){
-                count = countMap.get(i) + 1;
-            }
-            else {
-                count = 1;
-            }
+            if(i!=null) {
+                if (countMap.containsKey(i)) {
+                    count = countMap.get(i) + 1;
+                } else {
+                    count = 1;
+                }
 
-            countMap.put(i, count);
+                countMap.put(i, count);
 
-            if (count > max) {
-                max = count;
+                if (count > max) {
+                    max = count;
+                }
             }
         }
 

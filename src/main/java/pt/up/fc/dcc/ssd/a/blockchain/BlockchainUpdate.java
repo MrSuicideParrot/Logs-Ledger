@@ -25,8 +25,13 @@ public class BlockchainUpdate extends TimerTask {
 
         if(check != 0){
             logger.warning("Fork detected");
-            blockChain.findAndResolveBlockChainFork(check);
-
+            try {
+                blockChain.findAndResolveBlockChainFork(check);
+            }
+            catch (Exception e){
+                logger.severe("Fork resolve failed");
+                e.printStackTrace();
+            }
             logger.info("Fork resolved");
             printBlockchain();
         }

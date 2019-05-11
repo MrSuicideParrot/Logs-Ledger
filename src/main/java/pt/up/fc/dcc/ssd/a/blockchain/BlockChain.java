@@ -1,6 +1,7 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
 import com.google.protobuf.ByteString;
+import io.grpc.StatusRuntimeException;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.p2p.Node;
@@ -199,13 +200,19 @@ public class BlockChain {
             Node valuer =  (Node) ArrayTools.pickRandom(nC);
 
             candidate = getBlock(index);
-            ByteString hash = valuer.getHashBlockByIndex(index);
-            if(hash.equals(candidate.getHash())){
-                ++resp;
+            try {
+                ByteString hash = valuer.getHashBlockByIndex(index);
+                if(hash.equals(candidate.getHash())){
+                    ++resp;
+                }
+                else {
+                    --resp;
+                }
             }
-            else {
-                --resp;
+            catch (StatusRuntimeException e){
+                logger.warning("Failing contacting node");
             }
+
         }
 
         if(resp>0){
@@ -242,7 +249,14 @@ public class BlockChain {
         LinkedList<ByteString> blocks = new LinkedList<>();
 
         for (Node i : nC) {
-            blocks.add(i.getHashBlockByIndex(badBlock));
+            try {
+                blocks.add(i.getHashBlockByIndex(badBlock));
+            }
+            catch (StatusRuntimeException e){
+                logger.warning("Failing contacting node");
+                blocks.add(null);
+            }
+
         }
 
         ByteString mostHash = (ByteString) ArrayTools.mode(blocks.toArray());
