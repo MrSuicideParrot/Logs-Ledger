@@ -170,7 +170,7 @@ public class BlockChain {
 
 
         for(int i = initial; i <= this.getMaxIndex();  ++i ){
-            if(!checkBlock(i, nC,2)){
+            if(!checkBlock(i, nC,3)){
                 return i;
             }
 
@@ -181,26 +181,45 @@ public class BlockChain {
 
     boolean checkBlock(int index){
         List<Node> nC = network.getConfidenceNodes();
-        return checkBlock(index, nC, 2);
+        return checkBlock(index, nC, 3);
     }
 
     boolean checkBlock(int index, List<Node>nC, int checkNum){
 
-        boolean resp = true;
+        int resp = 0;
 
         if(checkNum > nC.size()){
             checkNum = nC.size();
         }
 
+        BlockType candidate = blockChain.getFirst();
+
         for (int i = 0 ; i < checkNum ; ++i) { // Verificar
 
             Node valuer =  (Node) ArrayTools.pickRandom(nC);
 
-            BlockType candidate = getBlock(index);
+            candidate = getBlock(index);
             ByteString hash = valuer.getHashBlockByIndex(index);
-            resp = resp & hash.equals(candidate.getHash());
+            if(hash.equals(candidate.getHash())){
+                ++resp;
+            }
+            else {
+                --resp;
+            }
         }
-        return resp;
+
+        if(resp>0){
+            lastRepuCheckedBlock = candidate.getBlockSign().getData().getIndex();
+            return true;
+        }
+        else if(resp<0){
+            return false;
+        }
+        else{
+            lastRepuCheckedBlock = candidate.getBlockSign().getData().getIndex();
+            //Todo Empate
+            return true;
+        }
     }
 
     public void findAndResolveBlockChainFork(int index) {
@@ -247,6 +266,12 @@ public class BlockChain {
             }
 
             lastBlock = blockChain.getLast();
+            int in = lastBlock.getBlockSign().getData().getIndex();
+
+            if(in < lastRepuCheckedBlock){
+                lastRepuCheckedBlock = in;
+            }
+
             blockChainLock.unlock();
 
             updateBlockChain(approvedNodes);
