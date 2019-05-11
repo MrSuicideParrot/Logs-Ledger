@@ -67,7 +67,7 @@ public class Node {
             e.printStackTrace();
         }
 
-        //block.findAndResolveBlockChainFork(0);
+        block.updateBlockChain();
         new Thread(new RandomLogGenerator(10,30,net, block)).start();
 
     }

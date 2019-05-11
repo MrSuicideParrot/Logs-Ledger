@@ -245,6 +245,8 @@ public class BlockChain {
             } catch (IndexOutOfBoundsException e) {
 
             }
+
+            lastBlock = blockChain.getLast();
             blockChainLock.unlock();
 
             updateBlockChain(approvedNodes);
@@ -253,17 +255,19 @@ public class BlockChain {
     }
 
 
-    void updateBlockChain(){
+    public void updateBlockChain(){
         List<Node> n = network.getConfidenceNodes();
-        updateBlockChain(n);
+        if(n.size() > 0)
+            updateBlockChain(n);
 
     }
 
     void updateBlockChain(List<Node> n) {
 
-        Integer[] result = new Integer[Config.nBuckets];
+        Integer[] result = new Integer[n.size()];
+        //LinkedList<Integer> result = new LinkedList<>();
 
-        for (int i=0; i < Config.nBuckets; ++i){
+        for (int i=0; i < n.size(); ++i){
             result[i] = n.get(i).getMaxBlockIndex();
         }
 
@@ -273,7 +277,7 @@ public class BlockChain {
          TODO Talvez retirar confiança
          */
         Set<Node> nodeC = new HashSet<>();
-        for (int i = 0; i <Config.nBuckets ; i++) {
+        for (int i = 0; i <n.size() ; i++) {
             if(result[i] == mode)
                 nodeC.add(n.get(i));
         }

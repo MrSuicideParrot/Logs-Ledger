@@ -19,19 +19,26 @@ public class BlockchainUpdate extends TimerTask {
     public void run() {
         logger.info("Starting blockchain check");
 
-        for (BlockType i:
-             this.blockChain.blockChain) {
-            logger.info("Block "+i.getBlockSign().getData().getIndex() +" "+ ArrayTools.bytesToHex(CriptoTools.hash(i.toByteArray())));
-
-        }
+        printBlockchain();
 
         int check = blockChain.checkBlockChain();
 
         if(check != 0){
             logger.warning("Fork detected");
             blockChain.findAndResolveBlockChainFork(check);
+
+            logger.info("Fork resolved");
+            printBlockchain();
         }
         logger.info("It's all ok");
 
+    }
+
+    public void printBlockchain() {
+        for (BlockType i:
+             this.blockChain.blockChain) {
+            System.out.println("Block "+i.getBlockSign().getData().getIndex() +" "+ ArrayTools.bytesToHex(CriptoTools.hash(i.toByteArray())));
+
+        }
     }
 }

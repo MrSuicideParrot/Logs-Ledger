@@ -79,7 +79,6 @@ public class Node  implements Comparable<Node>{
         mistrust += val;
         lock.unlock();
     }
-
     public void newLog(LogGossip request) {
 
         asyncStub.newLog(request, new GossipObserver(this));
