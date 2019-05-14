@@ -52,11 +52,13 @@ message BlockType{
             int32 index = 2;
             int64 timestamp = 3;
             repeated LogType logs = 4;
+            repeated bytes nodes = 5;
         }
 
         BlockData data = 1;
         bytes assin = 2;
         int64 nonce = 3;
+        bytes nodeID = 4;
     }
 
     BlockSign blockSign = 1;

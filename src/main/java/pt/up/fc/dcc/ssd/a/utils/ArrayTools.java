@@ -78,4 +78,9 @@ public class ArrayTools {
         Collections.shuffle(cl);
         return cl.get(0);
     }
+
+    public static int bitDistance(byte[] theHash, byte[] toByteArray) {
+        //TODO
+        return 0;
+    }
 }

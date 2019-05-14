@@ -6,16 +6,15 @@ import pt.up.fc.dcc.ssd.a.node.Signable;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 class BlockBuilder implements Signable {
     private BlockType.Builder blockBuilder;
     private BlockType.BlockSign.BlockData.Builder dataBuilder;
     private int indexLog;
 
-
+    private static final Logger logger = Logger.getLogger(BlockBuilder.class.getName());
 
     BlockBuilder(int index, byte[] parent, long date){
        blockBuilder = BlockType.newBuilder();
@@ -68,6 +67,7 @@ class BlockBuilder implements Signable {
 
     @Override
     public void setSignature(byte[] signature) {
+        blockBuilder.getBlockSignBuilder().setNodeID(Config.myID);
         blockBuilder.getBlockSignBuilder().setAssin(ByteString.copyFrom(signature));
     }
 
@@ -78,7 +78,7 @@ class BlockBuilder implements Signable {
         return blBuild.build();
     }
 
-    static boolean confirmBlock(byte[] parent, BlockType candidateBlock){
+    static boolean confirmBlock(byte[] parent, BlockType candidateBlock, BlockChain blockChain){
         {
             // Parent confirm
             byte[] parentHash = candidateBlock.getBlockSign().getData().getHashParent().toByteArray();
@@ -94,6 +94,8 @@ class BlockBuilder implements Signable {
                 return false;
         }
 
+            /* Confirmar proof of work ou proof of stake */
+        if(Config.proof_of_stake == false)
         {
             // Nonce confirm
             //TODO deve depois haver mais merda aqui ¯\_(ツ)_/¯
@@ -101,8 +103,35 @@ class BlockBuilder implements Signable {
                 return false;
             }
         }
+        else{
+            if(Config.temp_proof_of_work){
+                if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+                    return false;
+                }
+                else{
+                    // proof of work temporario confirmar se esta na altura de acabar o pw
+                    if(candidateBlock.getBlockSign().getData().getIndex() >= Config.initial_work){
+                        blockChain.generateNextStaker();
+                        Config.temp_proof_of_work = false;
+                        logger.info("Proof of stake activated");
+                        blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                    }
+                    return true;
+                }
+            }
+            else{
+                // Puro proof of stake
+                if(candidateBlock.getBlockSign().getNodeID().equals(Config.staker)){
+                    blockChain.generateNextStaker();
+                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                    return true;
+                }
+                return false;
+            }
+        }
 
         return true;
     }
+
 
 }

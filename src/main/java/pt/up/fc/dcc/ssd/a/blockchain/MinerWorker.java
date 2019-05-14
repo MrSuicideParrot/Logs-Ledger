@@ -29,66 +29,77 @@ public class MinerWorker implements Runnable{
     public void run() {
         logger.info("Miner initialized");
         while (true){
-
-            if(bl.logPool.size() >= Config.maxLogs) {
-                bl.logPoolLock.lock();
-                bl.blockChainLock.lock();
-                HashSet<LogType> l = new HashSet<>();
-                for(BlockType b : bl.blockChain){
-                   l.addAll(b.getBlockSign().getData().getLogsList());
-                }
-
-                LogType[] logs = this.bl.getLogsToMine();
-                ArrayList<LogType> dups = new ArrayList<>();
-
-                for(LogType i : logs){
-                    if(l.contains(i)){
-                        dups.add(i);
+            if(Config.im_the_staker || Config.temp_proof_of_work) {
+                if (bl.logPool.size() >= Config.maxLogs) {
+                    bl.logPoolLock.lock();
+                    bl.blockChainLock.lock();
+                    HashSet<LogType> l = new HashSet<>();
+                    for (BlockType b : bl.blockChain) {
+                        l.addAll(b.getBlockSign().getData().getLogsList());
                     }
-                }
-                LogType[] temp = new LogType[dups.size()];
-                bl.removeLogsFromPool(dups.toArray(temp));
-                if(bl.logPool.size() < Config.maxLogs){
+
+                    LogType[] logs = this.bl.getLogsToMine();
+                    ArrayList<LogType> dups = new ArrayList<>();
+
+                    for (LogType i : logs) {
+                        if (l.contains(i)) {
+                            dups.add(i);
+                        }
+                    }
+                    LogType[] temp = new LogType[dups.size()];
+                    bl.removeLogsFromPool(dups.toArray(temp));
+                    if (bl.logPool.size() < Config.maxLogs) {
+                        bl.logPoolLock.unlock();
+                        bl.blockChainLock.unlock();
+                        logger.info("Contained already mined logs. Restarting mining process.");
+                        continue;
+                    }
+
+                    logger.info("Mining a block");
+                    BlockBuilder blockBuilder = new BlockBuilder(
+                            this.bl.getMaxIndex() + 1,
+                            this.bl.getLastBlockHash(),
+                            System.currentTimeMillis() / 1000L);
+
+                    for (LogType i : logs) {
+                        blockBuilder.addLog(i);
+                    }
+
+                    if(Config.proof_of_stake){
+                        //Adicionar nos escolhidos
+                       /* TODO int good = Config.choice_good_nodes;
+                        if(good>)
+
+                        for(int i=0; i < Config.choice_good_nodes)*/
+                    }
+
+                    //TODO assinar
+                    if(Config.temp_proof_of_work){
+                        Random rand = new Random(System.currentTimeMillis());
+
+                        while (!reset) {
+                            blockBuilder.setNonce(rand.nextLong());
+                            byte[] hash = blockBuilder.getBlockHash();
+                            int zeros = Challenge.countZeros(hash);
+                            if (zeros >= Config.zeros) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!reset) {
+                        bl.addNewBlock(blockBuilder.build(), null);
+                        net.gossipBlock(blockBuilder.build());
+                        logger.info("Blocked was mined with success");
+
+                        bl.removeLogsFromPool(logs);
+                    }
+
                     bl.logPoolLock.unlock();
                     bl.blockChainLock.unlock();
-                    logger.info("Contained already mined logs. Restarting mining process.");
-                    continue;
                 }
-
-                logger.info("Mining a block");
-                BlockBuilder blockBuilder = new BlockBuilder(
-                        this.bl.getMaxIndex()+1,
-                        this.bl.getLastBlockHash(),
-                        System.currentTimeMillis() / 1000L);
-
-                for (LogType i : logs){
-                    blockBuilder.addLog(i);
-                }
-
-                //TODO assinar
-
-                Random rand = new Random(System.currentTimeMillis());
-
-                while (!reset) {
-                    blockBuilder.setNonce(rand.nextLong());
-                    byte[] hash = blockBuilder.getBlockHash();
-                    int zeros = Challenge.countZeros(hash);
-                    if(zeros >= Config.zeros){
-                        break;
-                    }
-                }
-
-                if(!reset){
-                    bl.addNewBlock(blockBuilder.build(), null);
-                    net.gossipBlock(blockBuilder.build());
-                    logger.info("Blocked was mined with success");
-
-                    bl.removeLogsFromPool(logs);
-                }
-
-                bl.logPoolLock.unlock();
-                bl.blockChainLock.unlock();
             }
+
             try {
              sleep(Config.sleep_time_miner);
             }

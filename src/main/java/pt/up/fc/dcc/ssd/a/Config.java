@@ -32,4 +32,16 @@ public class Config {
     public static String ipv4;
     public static int number_of_ips = 20;
     public static long sleep_time_miner = 20*1000;
+
+    public static boolean proof_of_stake = true;
+    public static int initial_work = 12;
+    public static int table_block = 3; // blocos da tabela
+    public static int choice_block =3; // blocos de onde são calculadas as hash
+    public static int choice_good_nodes = 4;
+    public static int choice_unkn_nodes = 5;
+    public static int stake_timer = 120*1000;
+    public static boolean im_the_staker = false;
+
+    public static boolean temp_proof_of_work = true;
+    public static ByteString staker = null;
 }

@@ -9,6 +9,8 @@ import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -32,6 +34,7 @@ public class BlockChain {
     int lastRepuCheckedBlock;
 
     MinerWorker miner;
+    private Timer stakeTimer;
 
     private static final Logger logger = Logger.getLogger(BlockChain.class.getName());
 
@@ -48,6 +51,8 @@ public class BlockChain {
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new BlockchainUpdate(this),  Config.check_blockchain, Config.check_blockchain);
+
+        stakeTimer = new Timer();
 
         logger.info("BlockChain initialized");
     }
@@ -119,8 +124,8 @@ public class BlockChain {
         int index = newBlock.getBlockSign().getData().getIndex();
 
         blockChainLock.lock();
-        if(index == this.getMaxIndex()+1){
-            if(BlockBuilder.confirmBlock(blockChain.getLast().getHash().toByteArray(), newBlock)){
+        if(index == this.getMaxIndex()+1){ /* caso o bloco seja o proximo */
+            if(BlockBuilder.confirmBlock(blockChain.getLast().getHash().toByteArray(), newBlock, this)){
 
                 lastBlock = newBlock;
                 blockChain.addLast(newBlock);
@@ -142,10 +147,12 @@ public class BlockChain {
                 return false;
             }
         }
+
+
         blockChainLock.unlock();
 
         if(index < this.getMaxIndex()){
-            if (BlockBuilder.confirmBlock(blockChain.get(index - 1).getHash().toByteArray(), newBlock)) {
+            if (BlockBuilder.confirmBlock(blockChain.get(index - 1).getHash().toByteArray(), newBlock, this)) {
                 if(owner != null)
                     owner.changeMistrust(Config.CONFIRM_BLOCK);
             }
@@ -159,18 +166,6 @@ public class BlockChain {
         return false;
     }
 
-    /*
-    public boolean newBlockAnnounc(BlockType newBlock) {
-        byte[] hashBlock = newBlock.getHash().toByteArray();
-
-        if(!blocks.contains(hashBlock)){
-            if(!addNewBlock(newBlock)){
-                updateBlockChain();
-            }
-            //TODO Gossip
-        }
-    }
-*/
     public boolean contains(ByteString hash){
         return blockOwnsership.containsKey(hash);
 
@@ -378,5 +373,58 @@ public class BlockChain {
         this.network = net;
         miner = new MinerWorker(this, network);
         new Thread(miner).start();
+    }
+
+    public void generateNextStaker() {
+        int max = getMaxIndex();
+
+        MessageDigest md;
+        try {
+             md = MessageDigest.getInstance("SHA-256");
+        } catch (
+                NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        for(int i = max; i > max - Config.choice_block; --i){
+            md.update(getBlock(i).getHash().toByteArray());
+        }
+
+        byte[] theHash = md.digest();
+
+        int min = Integer.MAX_VALUE;
+        ByteString min_node = null;
+
+        for(int i = max - Config.choice_block; i > max - Config.choice_block - Config.table_block ;--i){
+            for(ByteString n: getBlock(i).getBlockSign().getData().getNodesList()){
+                int dist = ArrayTools.bitDistance(theHash, n.toByteArray());
+                if(dist < min){
+                    min = dist;
+                    min_node = n;
+                }
+            }
+        }
+
+        Config.staker = min_node;
+
+        if (min_node.equals(Config.myID)){
+            Config.im_the_staker = true;
+        }
+    }
+
+    public void setStakerTimer(long timestamp){
+        if(timestamp + Config.stake_timer < (System.currentTimeMillis() / 1000L) ){
+            stakeTimer.purge();
+            Date date = new Date(timestamp*1000L + Config.stake_timer);
+            stakeTimer.schedule(new TimerTask() {
+                private final Logger logger = Logger.getLogger(MinerWorker.class.getName());
+                @Override
+                public void run() {
+                    Config.temp_proof_of_work = true;
+                    logger.info("Next block is with proof of work");
+                }
+            }, date);
+        }
     }
 }
