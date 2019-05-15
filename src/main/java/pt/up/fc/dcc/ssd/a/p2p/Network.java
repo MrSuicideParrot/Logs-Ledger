@@ -10,8 +10,7 @@ import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
 import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -133,8 +132,41 @@ public class Network {
         return conf.getConfidenceNodes();
     }
 
-    public void getRandomNodes(int n){
+    public List<Node> getRandomNodes(int n){
+        return getRandomNodes(n, null);
+    }
 
+    public List<Node> getRandomNodes(int n,List<Node> knownN){
+        List<Node> l =  new LinkedList<>(nodes.values());
+        return getRandomNodes(n, l, knownN);
+    }
+
+    public List<Node> getRandomConfNodes(int n){
+        return getRandomConfNodes(n, null);
+    }
+
+    public List<Node> getRandomConfNodes(int n, List<Node> knownN){
+        List<Node> l =  new LinkedList<>(conf.getConfidenceNodes(2));
+        return getRandomNodes(n, l, knownN);
+    }
+
+    private List<Node> getRandomNodes(int n, List<Node> l, List<Node> knownN) {
+        List<Node> resul = new LinkedList<>();
+
+        if(knownN != null){
+            l.removeAll(knownN);
+        }
+
+        if(l.size() > n) {
+            Random rand = new Random(System.currentTimeMillis());
+            for (int i = 0; i < n; ++i) {
+                resul.add(l.get(rand.nextInt(l.size())));
+            }
+        }
+        else{
+            resul = l;
+        }
+        return resul;
     }
 
     void removeNodes(ByteString id, Node node){

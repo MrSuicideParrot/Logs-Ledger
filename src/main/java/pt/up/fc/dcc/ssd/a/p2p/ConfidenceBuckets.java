@@ -46,11 +46,15 @@ public class ConfidenceBuckets implements Iterable<Node>{
     }
 
     List<Node> getConfidenceNodes() {
+        return getConfidenceNodes(1);
+    }
+
+    List<Node> getConfidenceNodes(int n) {
         List<Node> nodesConf = new LinkedList<>();
 
         for (int i=0; i <Config.nBuckets; ++i){
             if(!buckets[i].isEmpty()) {
-                nodesConf.add(buckets[i].getBestNode());
+                nodesConf.addAll(buckets[i].getBestNode(n));
             }
         }
 
@@ -62,4 +66,6 @@ public class ConfidenceBuckets implements Iterable<Node>{
         buckets[node.getBucketIndex()].remove(node);
         buckets[node.getBucketIndex()].unlock();
     }
+
+
 }

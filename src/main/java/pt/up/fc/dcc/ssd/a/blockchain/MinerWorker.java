@@ -2,10 +2,12 @@ package pt.up.fc.dcc.ssd.a.blockchain;
 
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
+import pt.up.fc.dcc.ssd.a.p2p.Node;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -65,13 +67,15 @@ public class MinerWorker implements Runnable{
                         blockBuilder.addLog(i);
                     }
 
-                    if(Config.proof_of_stake){
-                        //Adicionar nos escolhidos
-                       /* TODO int good = Config.choice_good_nodes;
-                        if(good>)
+                   /* if(Config.proof_of_stake){
 
-                        for(int i=0; i < Config.choice_good_nodes)*/
-                    }
+                        List<Node> gC = net.getConfidenceNodes(Config.choice_good_nodes);
+
+                        for (Node i:
+                             gC) {
+                           blockBuilder.addNodes()
+                        }
+                    } */
 
                     //TODO assinar
                     if(Config.temp_proof_of_work){

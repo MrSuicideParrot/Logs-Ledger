@@ -57,6 +57,22 @@ class Bucket {
 
     }
 
+    List<Node> getBestNode(int n) {
+        int count = 0;
+        List<Node> result = new LinkedList<>();
+
+        for (Node i:
+             bucket) {
+            if(count >= n)
+                break;
+
+            result.add(i);
+            ++count;
+        }
+
+        return result;
+    }
+
 
     void updateMistrust(){
         lock.lock();
@@ -74,4 +90,5 @@ class Bucket {
             System.out.println(ArrayTools.bytesToHex(i.getId()) + " -> " + i.getMistrust());
         }
     }
+
 }
