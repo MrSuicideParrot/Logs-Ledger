@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.blockchain.Hello;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class HelloObserver implements StreamObserver<Hello> {
@@ -30,7 +31,11 @@ public class HelloObserver implements StreamObserver<Hello> {
 
     @Override
     public void onCompleted() {
-        channel.shutdownNow();
-        while (!channel.isTerminated());
+        try {
+            channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }

@@ -100,7 +100,12 @@ public class Node  implements Comparable<Node>{
 
     @Override
     public int compareTo(Node node) {
-        return 0;
+        if(this.mistrust == node.mistrust)
+            return 0;
+        else if(this.mistrust > node.mistrust)
+            return 1;
+        else
+            return -1;
     }
 
     public ByteString getHashBlockByIndex(int index) {
