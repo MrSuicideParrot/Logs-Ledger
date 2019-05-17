@@ -51,14 +51,14 @@ message BlockType{
             bytes hashParent = 1;
             int32 index = 2;
             int64 timestamp = 3;
-            repeated LogType logs = 4;
-            repeated bytes nodes = 5;
+            bytes nodeID = 4;
+            repeated LogType logs = 5;
+            repeated bytes nodes = 6;
         }
 
         BlockData data = 1;
         bytes assin = 2;
         int64 nonce = 3;
-        bytes nodeID = 4;
     }
 
     BlockSign blockSign = 1;

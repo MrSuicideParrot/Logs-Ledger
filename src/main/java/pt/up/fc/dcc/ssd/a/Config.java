@@ -34,7 +34,7 @@ public class Config {
     public static long sleep_time_miner = 20*1000;
 
     public static boolean proof_of_stake = true;
-    public static int initial_work = 12;
+    public static int initial_work = 8;
     public static int table_block = 3; // blocos da tabela
     public static int choice_block =3; // blocos de onde são calculadas as hash
     public static int choice_good_nodes = 4;

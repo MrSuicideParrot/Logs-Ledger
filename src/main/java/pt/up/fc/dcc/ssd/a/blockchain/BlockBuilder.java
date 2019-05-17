@@ -3,6 +3,7 @@ package pt.up.fc.dcc.ssd.a.blockchain;
 import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.node.Signable;
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 import pt.up.fc.dcc.ssd.a.utils.Challenge;
 import pt.up.fc.dcc.ssd.a.utils.CriptoTools;
 
@@ -17,14 +18,18 @@ class BlockBuilder implements Signable {
     private static final Logger logger = Logger.getLogger(BlockBuilder.class.getName());
 
     BlockBuilder(int index, byte[] parent, long date){
-       blockBuilder = BlockType.newBuilder();
-       dataBuilder = blockBuilder.getBlockSignBuilder().getDataBuilder();
+        this(index,parent,date, Config.myID);
+    }
 
-       dataBuilder.setIndex(index);
-       dataBuilder.setHashParent(ByteString.copyFrom(parent));
-       dataBuilder.setTimestamp(date);
+    BlockBuilder(int index, byte[] parent, long date, ByteString nodeID){
+        blockBuilder = BlockType.newBuilder();
+        dataBuilder = blockBuilder.getBlockSignBuilder().getDataBuilder();
 
-       indexLog = 0;
+        dataBuilder.setIndex(index);
+        dataBuilder.setHashParent(ByteString.copyFrom(parent));
+        dataBuilder.setTimestamp(date);
+        dataBuilder.setNodeID(nodeID);
+        indexLog = 0;
     }
 
     boolean addLog(LogType newLog){
@@ -67,12 +72,19 @@ class BlockBuilder implements Signable {
 
     @Override
     public void setSignature(byte[] signature) {
-        blockBuilder.getBlockSignBuilder().setNodeID(Config.myID);
-        blockBuilder.getBlockSignBuilder().setAssin(ByteString.copyFrom(signature));
+       blockBuilder.getBlockSignBuilder().setAssin(ByteString.copyFrom(signature));
+    }
+
+    public void addNodeID(ByteString nodeI){
+        dataBuilder.addNodes(nodeI);
+    }
+
+    public BlockType.BlockSign.BlockData.Builder getBlockData(){
+        return dataBuilder;
     }
 
     static BlockType genesisBlock(){
-        BlockBuilder blBuild = new BlockBuilder(0, "42".getBytes(), 0);
+        BlockBuilder blBuild = new BlockBuilder(0, "42".getBytes(), 0, ByteString.copyFrom("GOD".getBytes()));
         blBuild.setNonce(42);
         blBuild.setSignature("GENESISBLOCKSIGN".getBytes());
         return blBuild.build();
@@ -93,7 +105,6 @@ class BlockBuilder implements Signable {
             if(!Arrays.equals(dataHash,candidateBlock.getHash().toByteArray()))
                 return false;
         }
-
             /* Confirmar proof of work ou proof of stake */
         if(Config.proof_of_stake == false)
         {
@@ -120,8 +131,17 @@ class BlockBuilder implements Signable {
                 }
             }
             else{
+                //Caso haja reset
+                if(Config.proof_of_stake && candidateBlock.getBlockSign().getData().getIndex() < Config.initial_work){
+                    if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+                        return false;
+                    }
+                    blockChain.generateNextStaker();
+                    return true;
+                }
                 // Puro proof of stake
-                if(candidateBlock.getBlockSign().getNodeID().equals(Config.staker)){
+                logger.info("No validado -> "+ArrayTools.bytesToHex(candidateBlock.getBlockSign().getData().getNodeID())+"=="+ArrayTools.bytesToHex(Config.staker));
+                if(candidateBlock.getBlockSign().getData().getNodeID().equals(Config.staker)){
                     blockChain.generateNextStaker();
                     blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
                     return true;

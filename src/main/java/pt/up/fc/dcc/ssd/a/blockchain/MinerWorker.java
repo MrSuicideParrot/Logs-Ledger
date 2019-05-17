@@ -1,5 +1,6 @@
 package pt.up.fc.dcc.ssd.a.blockchain;
 
+import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.Config;
 import pt.up.fc.dcc.ssd.a.p2p.Network;
 import pt.up.fc.dcc.ssd.a.p2p.Node;
@@ -67,15 +68,23 @@ public class MinerWorker implements Runnable{
                         blockBuilder.addLog(i);
                     }
 
-                   /* if(Config.proof_of_stake){
+                   if(Config.proof_of_stake){
 
-                        List<Node> gC = net.getConfidenceNodes(Config.choice_good_nodes);
+                        List<Node> gC = net.getRandomConfNodes(Config.choice_good_nodes);
 
                         for (Node i:
                              gC) {
-                           blockBuilder.addNodes()
+                            blockBuilder.addNodeID(i.getId());
                         }
-                    } */
+
+                        List<Node> gU = net.getRandomNodes(Config.choice_unkn_nodes, gC);
+
+                       for (Node i:
+                            gU) {
+
+                           blockBuilder.addNodeID(i.getId());
+                       }
+                    }
 
                     //TODO assinar
                     if(Config.temp_proof_of_work){

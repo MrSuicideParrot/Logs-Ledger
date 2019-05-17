@@ -79,8 +79,28 @@ public class ArrayTools {
         return cl.get(0);
     }
 
+    static byte[] xorID(byte[] id1,byte[] id2){
+        int len = Math.min(id1.length, id2.length);
+        byte[] result = new byte[len];
+
+        for(int i = 0; i < len ; i++){
+            result[i] = (byte)(id1[i] ^ id2[i]);
+        }
+
+        return result;
+    }
+
+    static int bitDistance(byte[] xored){
+        int count = 0;
+
+        BitSet xoredBit = BitSet.valueOf(xored);
+
+        for(; !xoredBit.get(count); ++count);
+
+        return xored.length - count;
+    }
+
     public static int bitDistance(byte[] theHash, byte[] toByteArray) {
-        //TODO
-        return 0;
+        return bitDistance(xorID(theHash, toByteArray));
     }
 }

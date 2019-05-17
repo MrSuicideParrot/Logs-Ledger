@@ -62,13 +62,14 @@ public class BlockChain {
         lastBlock = genBlock;
         blockChain.addLast(genBlock);
         blockOwnsership.put(genBlock.getHash(),null);
+        System.out.println(ArrayTools.bytesToHex(genBlock.getHash()));
     }
 
     public boolean addLogToPool(LogType l) {
         logPoolLock.lock();
         if (logPool.add(l)) {
             logPoolLock.unlock();
-            logger.info("Log added to log pool: "+ ArrayTools.bytesToHex(CriptoTools.hash(l.toByteArray())));
+            //logger.info("Log added to log pool: "+ ArrayTools.bytesToHex(CriptoTools.hash(l.toByteArray())));
             return true;
         } else {
             logPoolLock.unlock();
@@ -407,8 +408,10 @@ public class BlockChain {
         }
 
         Config.staker = min_node;
+        logger.info("Next staker ->" +  ArrayTools.bytesToHex(min_node.toByteArray()));
 
         if (min_node.equals(Config.myID)){
+            logger.info("It's me Mario!!!");
             Config.im_the_staker = true;
         }
     }

@@ -49,7 +49,7 @@ public class Network {
     }
 
     public void gossipLog(LogType log){
-        logger.info("Gossip do log iniciado: " + ArrayTools.bytesToHex(CriptoTools.hash(log.toByteArray())));
+        //logger.info("Gossip do log iniciado: " + ArrayTools.bytesToHex(CriptoTools.hash(log.toByteArray())));
 
         LogGossip.Builder builder = LogGossip.newBuilder();
         builder.setLog(log);
@@ -63,7 +63,7 @@ public class Network {
     }
 
     public void gossipBlock(BlockType block){
-        logger.info("Gossip do bloco iniciado: "+  ArrayTools.bytesToHex(CriptoTools.hash(block.toByteArray())));
+        //logger.info("Gossip do bloco iniciado: "+  ArrayTools.bytesToHex(CriptoTools.hash(block.toByteArray())));
 
         BlockGossip.Builder builder = BlockGossip.newBuilder();
         builder.setBlock(block);

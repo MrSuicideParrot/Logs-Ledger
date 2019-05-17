@@ -66,7 +66,7 @@ public class Node  implements Comparable<Node>{
     }
 
 
-    ByteString getId() {
+    public ByteString getId() {
         return id;
     }
 

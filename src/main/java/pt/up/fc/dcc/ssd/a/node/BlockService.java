@@ -67,7 +67,7 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        logger.info("Novo log recebido");
+        //logger.info("Novo log recebido");
         boolean added = m.addLogToPool(request.getLog());
         if(added){
             new Thread(new Gossip(n,request.getLog())).start();
@@ -86,7 +86,7 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
             boolean ver = nodeCand.verifyAssin(request.getBlock().toByteArray(),request.getAssin().toByteArray());
 
             if(ver) {
-                logger.info("Novo bloco recebido");
+                //logger.info("Novo bloco recebido");
                 if (!m.contains(request.getBlock().getHash())) {
 
 
