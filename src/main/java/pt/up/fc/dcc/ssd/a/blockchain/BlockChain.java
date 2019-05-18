@@ -206,6 +206,7 @@ public class BlockChain {
     boolean checkBlock(int index, List<Node>nC, int checkNum){
 
         int resp = 0;
+        int fail = 0;
 
         if(checkNum > nC.size()){
             checkNum = nC.size();
@@ -230,8 +231,13 @@ public class BlockChain {
             catch (StatusRuntimeException e){
                 logger.warning("Failing contacting node");
                 valuer.changeMistrust(Config.CONFIRM_FAIL);
+                fail++;
             }
 
+        }
+        if(fail == checkNum){
+            lastRepuCheckedBlock = 0;
+            return true;
         }
 
         if(resp>0){
@@ -338,6 +344,7 @@ public class BlockChain {
 
     public void updateBlockChain(){
         List<Node> n = network.getConfidenceNodes();
+
         if(n.size() > 0)
             updateBlockChain(n);
 
@@ -347,6 +354,10 @@ public class BlockChain {
         /* code -4 - Block rejeitado
             code -5 - A rede morreu
          */
+
+        if(n.size() == 0){
+            return 0;
+        }
 
         Integer[] result = new Integer[n.size()];
         //LinkedList<Integer> result = new LinkedList<>();
@@ -483,7 +494,6 @@ public class BlockChain {
 
         if (min_node.equals(Config.myID)){
             logger.info("It's me Mario!!!");
-            blockUpdater.blockCheck();
             Config.im_the_staker = true;
         }
         else{
@@ -492,7 +502,6 @@ public class BlockChain {
     }
 
     public void setStakerTimer(long timestamp){
-        System.out.println(timestamp + Config.stake_timer);
 
         if(timestamp + Config.stake_timer > (System.currentTimeMillis() / 1000L) ){
             stakeTimer.purge();

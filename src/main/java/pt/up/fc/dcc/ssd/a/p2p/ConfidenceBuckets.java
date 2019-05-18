@@ -32,6 +32,7 @@ public class ConfidenceBuckets implements Iterable<Node>{
             bucketIndex = random.nextInt(Config.nBuckets);
         }while (!buckets[bucketIndex].tryLock());
         buckets[bucketIndex].add(newNode);
+        newNode.setBucketIndex(bucketIndex);
         buckets[bucketIndex].unlock();
     }
 

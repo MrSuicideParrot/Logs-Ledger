@@ -105,7 +105,7 @@ public class Network {
                         Node no = new Node(con.getNodeID(),con.getIpv4(),pubKey, this);
                         logger.info("New node created " + con.getIpv4());
                         lock.lock();
-                        nodes.put(con.getNodeID(), no);
+                        nodes.put(no.getId(), no);
                         conf.addP2PNode(no);
                         lock.unlock();
                     }
@@ -171,6 +171,7 @@ public class Network {
 
     void removeNodes(ByteString id, Node node){
         Node t = nodes.remove(id);
+        assert t != null;
         conf.remove(node);
     }
 
