@@ -34,7 +34,11 @@ public class BlockChain {
     int lastRepuCheckedBlock;
 
     MinerWorker miner;
+
     private Timer stakeTimer;
+    private Timer updateTimer;
+
+    private BlockchainUpdate blockUpdater;
 
     private static final Logger logger = Logger.getLogger(BlockChain.class.getName());
 
@@ -49,8 +53,10 @@ public class BlockChain {
         genesisBlockGen();
         random = new SecureRandom();
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new BlockchainUpdate(this),  Config.check_blockchain, Config.check_blockchain);
+        Timer updateTimer = new Timer();
+
+        blockUpdater = new BlockchainUpdate(this);
+        updateTimer.scheduleAtFixedRate( blockUpdater,  Config.check_blockchain, Config.check_blockchain);
 
         stakeTimer = new Timer();
 
@@ -223,6 +229,7 @@ public class BlockChain {
             }
             catch (StatusRuntimeException e){
                 logger.warning("Failing contacting node");
+                valuer.changeMistrust(Config.CONFIRM_FAIL);
             }
 
         }
@@ -241,7 +248,14 @@ public class BlockChain {
         }
     }
 
-    public void findAndResolveBlockChainFork(int index) {
+    public int findAndResolveBlockChainFork(int index) {
+        /*
+        Error code
+        0 tudo ok
+        -1 badblock  = -1
+        -2 afinal o checkblock deu bem
+        -3 erro la de cima
+         */
         int badBlock = -1;
 
         for (int i = index; i >= 0; --i) {
@@ -249,6 +263,14 @@ public class BlockChain {
                 badBlock = i + 1;
                 break;
             }
+        }
+
+        if(badBlock == -1){
+            return -1;
+        }
+
+        if(badBlock > index){
+            return -2;
         }
 
             /*
@@ -266,6 +288,7 @@ public class BlockChain {
             }
             catch (StatusRuntimeException e){
                 logger.warning("Failing contacting node");
+                i.changeMistrust(Config.CONFIRM_FAIL);
                 blocks.add(null);
             }
 
@@ -298,11 +321,18 @@ public class BlockChain {
                 lastRepuCheckedBlock = in;
             }
 
+            //Verificar se saimos da proof of stake
+            if(in < Config.initial_work){
+                Config.temp_proof_of_work = true;
+            }
+
             blockChainLock.unlock();
 
-            updateBlockChain(approvedNodes);
+           return updateBlockChain(approvedNodes);
 
         }
+
+        return 0;
     }
 
 
@@ -313,13 +343,22 @@ public class BlockChain {
 
     }
 
-    void updateBlockChain(List<Node> n) {
+    int updateBlockChain(List<Node> n) {
+        /* code -4 - Block rejeitado
+            code -5 - A rede morreu
+         */
 
         Integer[] result = new Integer[n.size()];
         //LinkedList<Integer> result = new LinkedList<>();
 
         for (int i=0; i < n.size(); ++i){
-            result[i] = n.get(i).getMaxBlockIndex();
+            try {
+                result[i] = n.get(i).getMaxBlockIndex();
+            }
+            catch (StatusRuntimeException e){
+                result[i] = null;
+                n.get(i).changeMistrust(Config.CONFIRM_FAIL);
+            }
         }
 
         Integer mode = (Integer) ArrayTools.mode(result);
@@ -335,23 +374,49 @@ public class BlockChain {
 
 
         Iterator<Node> nodeCI = nodeC.iterator();
-        if(mode > this.getMaxIndex()){
-            for(int i = this.getMaxIndex()+1; i <= mode ; ++i){
-                Node contact;
+        if(mode > this.getMaxIndex()) {
+            for (int i = this.getMaxIndex() + 1; i <= mode; ++i) {
 
-                if(!nodeCI.hasNext())
-                    nodeCI = nodeC.iterator();
+                int failCount = 0;
+                do {
+                    Node contact;
 
-                contact = nodeCI.next();
+                    if (!nodeCI.hasNext())
+                        nodeCI = nodeC.iterator();
 
-                BlockType candidate = contact.getBlockByIndex(i);
-                if(!addNewBlock(candidate, contact)){
-                    logger.severe("Falhou o update BlockChain");
+                    contact = nodeCI.next();
+
+                    BlockType candidate = null;
+
+                    try {
+                        candidate = contact.getBlockByIndex(i);
+                    } catch (StatusRuntimeException e) {
+                        logger.warning("Failing contacting node updateBlockChain");
+                    }
+
+                    if (candidate != null) {
+                        if (addNewBlock(candidate, contact)) {
+                            break;
+                        }
+                        else {
+                            logger.severe("Falhou o update BlockChain");
+                        }
+                    }
+                    /*
+                    Falhou no contacto do bloco vamos tentar com outro nos se nao conseguirmos  falha
+                     */
+                    ++failCount;
                 }
+                while (failCount < 3);
 
+                if(failCount >= 3){
+                    // Falhou no contacto do nó
+                    return -5;
+                }
             }
-
         }
+
+        return 0;
     }
 
     BlockType removeBlock(int index){
@@ -367,7 +432,13 @@ public class BlockChain {
     }
 
     public BlockType getBlock(int index) {
-        return blockChain.get(index);
+        try {
+            return blockChain.get(index);
+        }
+        catch (IndexOutOfBoundsException e){
+            return null;
+        }
+
     }
 
     public void setNetwork(Network net) {
@@ -412,12 +483,18 @@ public class BlockChain {
 
         if (min_node.equals(Config.myID)){
             logger.info("It's me Mario!!!");
+            blockUpdater.blockCheck();
             Config.im_the_staker = true;
+        }
+        else{
+            Config.im_the_staker = false;
         }
     }
 
     public void setStakerTimer(long timestamp){
-        if(timestamp + Config.stake_timer < (System.currentTimeMillis() / 1000L) ){
+        System.out.println(timestamp + Config.stake_timer);
+
+        if(timestamp + Config.stake_timer > (System.currentTimeMillis() / 1000L) ){
             stakeTimer.purge();
             Date date = new Date(timestamp*1000L + Config.stake_timer);
             stakeTimer.schedule(new TimerTask() {
@@ -428,6 +505,9 @@ public class BlockChain {
                     logger.info("Next block is with proof of work");
                 }
             }, date);
+        }
+        else{
+            Config.temp_proof_of_work = true;
         }
     }
 }

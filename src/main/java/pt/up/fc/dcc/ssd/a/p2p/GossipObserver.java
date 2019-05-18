@@ -2,6 +2,7 @@ package pt.up.fc.dcc.ssd.a.p2p;
 
 import io.grpc.stub.StreamObserver;
 import pt.up.fc.dcc.ssd.a.grpcutils.Type;
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 
 import java.util.logging.Logger;
 
@@ -24,9 +25,9 @@ public class GossipObserver implements StreamObserver<Type.Empty> {
 
     @Override
     public void onError(Throwable throwable) {
-        logger.warning("Erro em gossip");
-        throwable.printStackTrace();
-        logger.severe("Node will be removed");
+        logger.warning("Erro em gossip "+ ArrayTools.bytesToHex(i.getId()));
+        //throwable.printStackTrace();
+        logger.severe("Node will be removed"+ ArrayTools.bytesToHex(i.getId()));
         net.removeNodes(i.getId(),i);
     }
 

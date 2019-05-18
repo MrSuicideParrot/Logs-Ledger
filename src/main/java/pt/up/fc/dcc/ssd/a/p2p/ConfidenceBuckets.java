@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.google.protobuf.ByteString;
 import pt.up.fc.dcc.ssd.a.Config;
+import pt.up.fc.dcc.ssd.a.utils.ArrayTools;
 
 import java.security.SecureRandom;
 
@@ -30,7 +31,6 @@ public class ConfidenceBuckets implements Iterable<Node>{
         do {
             bucketIndex = random.nextInt(Config.nBuckets);
         }while (!buckets[bucketIndex].tryLock());
-
         buckets[bucketIndex].add(newNode);
         buckets[bucketIndex].unlock();
     }
@@ -58,7 +58,7 @@ public class ConfidenceBuckets implements Iterable<Node>{
             }
         }
 
-        return nodesConf;
+        return (List<Node>) ArrayTools.shuffleList(nodesConf);
     }
 
     public void remove(Node node) {

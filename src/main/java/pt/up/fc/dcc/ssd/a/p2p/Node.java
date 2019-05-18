@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 public class Node  implements Comparable<Node>{
-    private int ip;
+    private String ip;
     private int port;
     private ByteString id;
     private long firstSeen;
@@ -51,6 +51,7 @@ public class Node  implements Comparable<Node>{
     Node(ByteString id, String host, PublicKey pubKey, Network myNetwork, int port) {
         this.id = id;
         this.port = port;
+        this.ip = host;
         this.firstSeen = System.currentTimeMillis();
         this.pub = pubKey;
         this.myNetwork = myNetwork;

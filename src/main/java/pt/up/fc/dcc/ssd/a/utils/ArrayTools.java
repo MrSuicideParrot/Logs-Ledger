@@ -79,6 +79,12 @@ public class ArrayTools {
         return cl.get(0);
     }
 
+    public static Object shuffleList(List<?> l){
+        List<?> cl = new LinkedList<>(l);
+        Collections.shuffle(cl);
+        return cl;
+    }
+
     static byte[] xorID(byte[] id1,byte[] id2){
         int len = Math.min(id1.length, id2.length);
         byte[] result = new byte[len];

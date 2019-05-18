@@ -23,6 +23,8 @@ public class Config {
     public static int CONFIRM_BLOCK = -100;
     public static int REJECTED_BLOCK = 100;
 
+    public static int CONFIRM_FAIL = 100; /* Grpc erro na confirmação */
+
     public static int CONF_TRUE = -1000;
     public static int CONF_FALSE = 1000;
 

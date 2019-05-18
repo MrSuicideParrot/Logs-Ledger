@@ -58,7 +58,11 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
     @Override
     public void getBlock(BlockID request, StreamObserver<BlockType> responseObserver) {
         BlockType bloco = m.getBlock(request.getIndex());
-        responseObserver.onNext(bloco);
+
+        if(bloco != null) {
+            responseObserver.onNext(bloco);
+        }
+
         responseObserver.onCompleted();
     }
 
@@ -81,30 +85,37 @@ public class BlockService  extends BlockChainServiceGrpc.BlockChainServiceImplBa
         responseObserver.onNext(Type.Empty.newBuilder().build());
         responseObserver.onCompleted();
 
-        Node nodeCand = n.getNodeID(request.getNodeID());
-        if(nodeCand != null) {
-            boolean ver = nodeCand.verifyAssin(request.getBlock().toByteArray(),request.getAssin().toByteArray());
+        final BlockGossip mRequest = request;
 
-            if(ver) {
-                //logger.info("Novo bloco recebido");
-                if (!m.contains(request.getBlock().getHash())) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Node nodeCand = n.getNodeID(mRequest.getNodeID());
+                if(nodeCand != null) {
+                    boolean ver = nodeCand.verifyAssin(mRequest.getBlock().toByteArray(),mRequest.getAssin().toByteArray());
+
+                    if(ver) {
+                        //logger.info("Novo bloco recebido");
+                        if (!m.contains(mRequest.getBlock().getHash())) {
 
 
-                    boolean added = m.addNewBlock(request.getBlock(), nodeCand);
-                    if (added) {
-                        new Thread(new Gossip(n, request.getBlock())).start();
+                            boolean added = m.addNewBlock(mRequest.getBlock(), nodeCand);
+                            if (added) {
+                                new Thread(new Gossip(n, mRequest.getBlock())).start();
+                            }
+                            else {
+                                // Mau pedido
+                                nodeCand.changeMistrust(Config.REJECTED_BLOCK);
+                            }
+                        }
+                        else{
+                            //Bloco ja existe confirmaste a sua existencia
+                            nodeCand.changeMistrust(Config.CONFIRM_BLOCK);
+                        }
                     }
-                    else {
-                        // Mau pedido
-                        nodeCand.changeMistrust(Config.REJECTED_BLOCK);
-                    }
-                }
-                else{
-                    //Bloco ja existe confirmaste a sua existencia
-                    nodeCand.changeMistrust(Config.CONFIRM_BLOCK);
                 }
             }
-        }
+        }).start();
     }
 
 }
