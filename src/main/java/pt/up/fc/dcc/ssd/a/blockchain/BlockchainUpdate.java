@@ -33,7 +33,7 @@ public class BlockchainUpdate extends TimerTask {
 
         int check = blockChain.checkBlockChain();
 
-        if(check != 0){
+        if(check > 0){
             logger.warning("Fork detected - index: "+check);
             int status = -3;
 
@@ -54,8 +54,13 @@ public class BlockchainUpdate extends TimerTask {
 
         }
         else {
-            blockChain.updateBlockChain(); // Caso fique enpancado num caminho certoz
-            logger.info("It's all ok");
+            if(check == 0) {
+                blockChain.updateBlockChain(); // Caso fique enpancado num caminho certoz
+                logger.info("It's all ok");
+            }
+            else{
+                logger.warning("Possible fail");
+            }
         }
         lock.unlock();
     }

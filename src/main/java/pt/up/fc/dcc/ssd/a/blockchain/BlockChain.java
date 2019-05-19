@@ -189,21 +189,29 @@ public class BlockChain {
 
 
         for(int i = initial; i <= this.getMaxIndex();  ++i ){
-            if(!checkBlock(i, nC,3)){
-                return i;
-            }
+            int resp = checkBlock(i, nC,3);
 
+            if(resp == 0)
+                return i;
+            else
+                if(resp == -1) // Caso falhe
+                    return -1;
         }
 
         return 0;
     }
 
-    boolean checkBlock(int index){
+    int checkBlock(int index){
         List<Node> nC = network.getConfidenceNodes();
         return checkBlock(index, nC, 3);
     }
 
-    boolean checkBlock(int index, List<Node>nC, int checkNum){
+    int checkBlock(int index, List<Node>nC, int checkNum){
+        /**
+         * 1 tudo ok
+         * 0 falhou checke
+         * -1 não houve nos
+         */
 
         int resp = 0;
         int fail = 0;
@@ -236,21 +244,24 @@ public class BlockChain {
 
         }
         if(fail == checkNum){
-            lastRepuCheckedBlock = 0;
-            return true;
+            lastRepuCheckedBlock -= 5;
+
+            if(lastRepuCheckedBlock < 0)
+                lastRepuCheckedBlock = 0;
+
+            return -1;
         }
 
         if(resp>0){
             lastRepuCheckedBlock = candidate.getBlockSign().getData().getIndex();
-            return true;
+            return 1;
         }
         else if(resp<0){
-            return false;
+            return 0;
         }
         else{
-            lastRepuCheckedBlock = candidate.getBlockSign().getData().getIndex();
-            //Todo Empate
-            return true;
+            // Empate
+            return 1;
         }
     }
 
@@ -265,7 +276,7 @@ public class BlockChain {
         int badBlock = -1;
 
         for (int i = index; i >= 0; --i) {
-            if (checkBlock(i)) {
+            if (checkBlock(i) == 1) {
                 badBlock = i + 1;
                 break;
             }
