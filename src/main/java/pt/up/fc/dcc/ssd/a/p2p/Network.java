@@ -129,7 +129,16 @@ public class Network {
     }
 
     public List<Node> getConfidenceNodes(){
-        return conf.getConfidenceNodes();
+        return getConfidenceNodes(true);
+    }
+
+    public List<Node> getConfidenceNodes(boolean random){
+        List<Node> tmp = conf.getConfidenceNodes();
+
+        if(random)
+            tmp.addAll(getRandomNodes(1, tmp));
+
+        return tmp;
     }
 
     public List<Node> getRandomNodes(int n){

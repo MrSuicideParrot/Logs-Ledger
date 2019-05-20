@@ -115,7 +115,17 @@ class BlockBuilder implements Signable {
             }
         }
         else{
-            if(Config.temp_proof_of_work){
+            int index = candidateBlock.getBlockSign().getData().getIndex();
+
+            if( Config.temp_proof_of_work && index >= Config.initial_work && isProofOfStake(blockChain.getBlock(index-1), candidateBlock)){
+                if(candidateBlock.getBlockSign().getData().getNodeID().equals(Config.staker)){
+                    blockChain.generateNextStaker();
+                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                    return true;
+                }
+            }
+
+            if(Config.temp_proof_of_work ){ //TODO verificar
                 if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
                     return false;
                 }
@@ -151,6 +161,13 @@ class BlockBuilder implements Signable {
         }
 
         return true;
+    }
+
+    private static boolean isProofOfStake(BlockType block, BlockType candidateBlock) {
+        long parentTimestamp = block.getBlockSign().getData().getTimestamp();
+        long candidateTimestamp = candidateBlock.getBlockSign().getData().getTimestamp();
+
+        return parentTimestamp + Config.stake_timer  >  candidateTimestamp;
     }
 
 

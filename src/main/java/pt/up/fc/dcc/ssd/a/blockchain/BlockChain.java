@@ -265,6 +265,115 @@ public class BlockChain {
         }
     }
 
+    public int findAndResolveBlockForkMaxLength(){
+        List<Node> nC = network.getConfidenceNodes(false);
+
+        int maxValue = 0;
+        List<Node> maxList = new LinkedList<>();
+
+        // Obter o maximo fork da blockchain
+        for(Node i : nC){
+            try {
+                int val = i.getMaxBlockIndex();
+                if(val >= maxValue){
+                    if(val == maxValue) {
+                        maxList.add(i);
+                    }
+                    else{
+                        maxValue = val;
+                        maxList.clear();
+                        maxList.add(i);
+                    }
+                }
+
+            }
+            catch (StatusRuntimeException e){
+                logger.warning("Failing contacting node");
+            }
+        }
+
+        logger.info("Max finded: " + maxValue);
+        // Teste de confirmação
+        if(maxList.size() == 0){
+            logger.severe("Failing creating max");
+            return 0;
+        }
+
+        LinkedList<ByteString> blocks = new LinkedList<>();
+
+        //Verificar se todos tem o mesmo fork ou diferentes
+        for (Node i : maxList) {
+            try {
+                blocks.add(i.getHashBlockByIndex(maxValue));
+            }
+            catch (StatusRuntimeException e){
+                logger.warning("Failing contacting node");
+                blocks.add(null);
+            }
+        }
+
+        ByteString mostHash = (ByteString) ArrayTools.mode(blocks.toArray());
+        LinkedList<Node> approvedNodes = new LinkedList<>();
+
+        for (int i = 0; i < blocks.size(); ++i) {
+            if (mostHash.equals(blocks.get(i))) {
+                approvedNodes.add(maxList.get(i));
+            }
+        }
+
+        int index = lastRepuCheckedBlock;
+
+        if(checkBlock(index, approvedNodes, 3) == 1){
+            // aumenta o index ate acabar ou descobrir index
+            ++index;
+            while (index <= getMaxIndex() && checkBlock(index, approvedNodes, 3) == 1){
+                ++index;
+            }
+        }
+        else{
+            --index;
+            while (index > 0){
+                int resul = checkBlock(index, approvedNodes, 3);
+                if(resul == 1)
+                    break;
+
+                if(resul != 0){
+                    logger.severe("Falhou sincronização");
+                    return 0;
+                }
+                --index;
+            }
+            index++;
+        }
+
+        blockChainLock.lock();
+        try {
+            // TODO codigo trolha melhorar
+            while (true) {
+                this.removeBlock(index);
+            }
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+
+        lastBlock = blockChain.getLast();
+        int in = lastBlock.getBlockSign().getData().getIndex();
+
+        if(in < lastRepuCheckedBlock){
+            lastRepuCheckedBlock = in;
+        }
+
+        //Verificar se saimos da proof of stake
+        if(in < Config.initial_work){
+            Config.temp_proof_of_work = true;
+        }
+
+        blockChainLock.unlock();
+
+        return updateBlockChain(approvedNodes);
+
+    }
+
     public int findAndResolveBlockChainFork(int index) {
         /*
         Error code
@@ -513,15 +622,17 @@ public class BlockChain {
     }
 
     public void setStakerTimer(long timestamp){
+        stakeTimer.purge();
 
         if(timestamp + Config.stake_timer > (System.currentTimeMillis() / 1000L) ){
-            stakeTimer.purge();
+
             Date date = new Date(timestamp*1000L + Config.stake_timer);
             stakeTimer.schedule(new TimerTask() {
                 private final Logger logger = Logger.getLogger(MinerWorker.class.getName());
                 @Override
                 public void run() {
                     Config.temp_proof_of_work = true;
+                    Config.im_the_staker = false;
                     logger.info("Next block is with proof of work");
                 }
             }, date);

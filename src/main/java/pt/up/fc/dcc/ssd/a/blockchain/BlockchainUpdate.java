@@ -11,22 +11,39 @@ import java.util.logging.Logger;
 public class BlockchainUpdate extends TimerTask {
     BlockChain blockChain;
 
-    private Lock lock;
+    //private Lock lock;
 
     private static final Logger logger = Logger.getLogger(BlockchainUpdate.class.getName());
 
     BlockchainUpdate(BlockChain blockChain){
         this.blockChain = blockChain;
-        lock = new ReentrantLock();
+        //lock = new ReentrantLock();
     }
 
     @Override
     public void run() {
-        blockCheck();
+        blockCheck2();
     }
 
-    public void blockCheck() {
-        lock.lock();
+    public void blockCheck2(){
+       // blockChain.miner.lock.lock();
+        //lock.lock();
+
+        logger.info("Starting blockchain check");
+
+        printBlockchain();
+
+        blockChain.findAndResolveBlockForkMaxLength();
+
+        logger.info("Success");
+        printBlockchain();
+
+        //lock.unlock();
+      //  blockChain.miner.lock.unlock();
+    }
+
+    public void blockCheck1() {
+       // lock.lock();
         logger.info("Starting blockchain check");
 
         printBlockchain();
@@ -62,7 +79,7 @@ public class BlockchainUpdate extends TimerTask {
                 logger.warning("Possible fail");
             }
         }
-        lock.unlock();
+       // lock.unlock();
     }
 
     public void printBlockchain() {
