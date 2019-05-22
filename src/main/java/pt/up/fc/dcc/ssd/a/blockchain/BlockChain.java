@@ -137,7 +137,8 @@ public class BlockChain {
                 lastBlock = newBlock;
                 blockChain.addLast(newBlock);
                 blockOwnsership.put(hashBlock, owner);
-                if(getMaxIndex() >= Config.initial_work)
+
+                if(getMaxIndex() >= Config.initial_work && Config.proof_of_stake)
                     generateNextStaker();
 
                 blockChainLock.unlock();
@@ -372,7 +373,7 @@ public class BlockChain {
             Config.temp_proof_of_work = true;
         }
 
-        if(in >= Config.initial_work){
+        if(in >= Config.initial_work && Config.proof_of_stake){
             generateNextStaker();
         }
 
@@ -483,7 +484,7 @@ public class BlockChain {
             code -5 - A rede morreu
          */
 
-        if(getMaxIndex()>=Config.initial_work){
+        if(getMaxIndex()>=Config.initial_work && Config.proof_of_stake){
             generateNextStaker();
         }
 

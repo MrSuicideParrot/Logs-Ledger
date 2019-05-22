@@ -11,4 +11,8 @@ $ docker compile . -t node
 
 Run:
 
-`$ docker run -e "TRACKER_IP=172.17.0.1" --rm -it log-node`
+Consensus could be:
+* PoS - Proof of Stake
+* PoW - Proof of Work
+
+`$ docker run -e "TRACKER_IP=172.17.0.1" -e "CONSENSUS=PoS" --rm -it log-node`

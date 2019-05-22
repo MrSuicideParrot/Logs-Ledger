@@ -119,31 +119,28 @@ public class Node {
         return m;
     }
 
-//    static InetAddress getMyIP(){
-//
-//        /*try {
-//            for (NetworkInterface i : NetworkInterface.getNetworkInterfaces()) {
-//                if (i.isUp() && (!i.isLoopback())) {
-//                    for (InterfaceAddress j : i.getInterfaceAddresses()) {
-//                        return j.getAddress();
-//                    }
-//                }
-//            }
-//        }
-//        catch (SocketException e){
-//
-//        }*/
-//        return null;
-//    }
-
-
     public static void main(String[] args) throws Exception{
-        if(args.length != 1){
+        if(args.length == 0 || args.length > 2){
             logger.severe("No tracker ip on argv");
+            logger.severe("Argv options: \n TrackerIP  ConsneseFlag PoS PoW");
             System.exit(1);
         }
 
         Config.trackerIp = args[0];
+
+        switch (args[1]){
+            case "PoS":
+                Config.proof_of_stake = true;
+                break;
+
+            case "PoW":
+                Config.proof_of_stake =false;
+                break;
+
+            default:
+                logger.severe("Consense mode not recognized");
+        }
+
 
         Node no = new Node();
         no.start();
