@@ -119,8 +119,8 @@ class BlockBuilder implements Signable {
 
             if( Config.temp_proof_of_work && index >= Config.initial_work && isProofOfStake(blockChain.getBlock(index-1), candidateBlock)){
                 if(candidateBlock.getBlockSign().getData().getNodeID().equals(Config.staker)){
-                    blockChain.generateNextStaker();
-                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                    //blockChain.generateNextStaker();
+                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp(), index );
                     return true;
                 }
             }
@@ -132,10 +132,10 @@ class BlockBuilder implements Signable {
                 else{
                     // proof of work temporario confirmar se esta na altura de acabar o pw
                     if(candidateBlock.getBlockSign().getData().getIndex() >= Config.initial_work){
-                        blockChain.generateNextStaker();
+                        //blockChain.generateNextStaker();
                         Config.temp_proof_of_work = false;
                         logger.info("Proof of stake activated");
-                        blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                        blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp(), index);
                     }
                     return true;
                 }
@@ -146,14 +146,15 @@ class BlockBuilder implements Signable {
                     if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
                         return false;
                     }
-                    blockChain.generateNextStaker();
+                    //blockChain.generateNextStaker();
                     return true;
                 }
                 // Puro proof of stake
+                logger.info("Index: "+ candidateBlock.getBlockSign().getData().getIndex() );
                 logger.info("No validado -> "+ArrayTools.bytesToHex(candidateBlock.getBlockSign().getData().getNodeID())+"=="+ArrayTools.bytesToHex(Config.staker));
                 if(candidateBlock.getBlockSign().getData().getNodeID().equals(Config.staker)){
-                    blockChain.generateNextStaker();
-                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp());
+                    //blockChain.generateNextStaker();
+                    blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp(),index);
                     return true;
                 }
                 return false;

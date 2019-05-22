@@ -137,6 +137,8 @@ public class BlockChain {
                 lastBlock = newBlock;
                 blockChain.addLast(newBlock);
                 blockOwnsership.put(hashBlock, owner);
+                if(getMaxIndex() >= Config.initial_work)
+                    generateNextStaker();
 
                 blockChainLock.unlock();
                 logger.info("New block added to blockchain: "+  ArrayTools.bytesToHex(CriptoTools.hash(newBlock.toByteArray())));
@@ -268,7 +270,7 @@ public class BlockChain {
     public int findAndResolveBlockForkMaxLength(){
         List<Node> nC = network.getConfidenceNodes(false);
 
-        int maxValue = 0;
+        int maxValue = this.getMaxIndex();
         List<Node> maxList = new LinkedList<>();
 
         // Obter o maximo fork da blockchain
@@ -346,8 +348,10 @@ public class BlockChain {
             index++;
         }
 
+
         blockChainLock.lock();
         try {
+            logger.info("Vou tirar bloco "+index);
             // TODO codigo trolha melhorar
             while (true) {
                 this.removeBlock(index);
@@ -366,6 +370,10 @@ public class BlockChain {
         //Verificar se saimos da proof of stake
         if(in < Config.initial_work){
             Config.temp_proof_of_work = true;
+        }
+
+        if(in >= Config.initial_work){
+            generateNextStaker();
         }
 
         blockChainLock.unlock();
@@ -475,6 +483,10 @@ public class BlockChain {
             code -5 - A rede morreu
          */
 
+        if(getMaxIndex()>=Config.initial_work){
+            generateNextStaker();
+        }
+
         if(n.size() == 0){
             return 0;
         }
@@ -523,6 +535,8 @@ public class BlockChain {
                         candidate = contact.getBlockByIndex(i);
                     } catch (StatusRuntimeException e) {
                         logger.warning("Failing contacting node updateBlockChain");
+                        logger.warning(ArrayTools.bytesToHex(contact.getId()));
+                        logger.warning(i +" " + e.toString());
                     }
 
                     if (candidate != null) {
@@ -530,6 +544,8 @@ public class BlockChain {
                             break;
                         }
                         else {
+                            logger.warning(ArrayTools.bytesToHex(contact.getId()));
+                            logger.warning("Index " +i );
                             logger.severe("Falhou o update BlockChain");
                         }
                     }
@@ -621,8 +637,14 @@ public class BlockChain {
         }
     }
 
-    public void setStakerTimer(long timestamp){
-        stakeTimer.purge();
+    public void setStakerTimer(long timestamp, final int index){
+        try {
+            stakeTimer.cancel();
+            stakeTimer = new Timer();
+        }
+        catch (IllegalStateException e){
+            // Caso nao exista nenhum timer na queue
+        }
 
         if(timestamp + Config.stake_timer > (System.currentTimeMillis() / 1000L) ){
 
@@ -633,7 +655,7 @@ public class BlockChain {
                 public void run() {
                     Config.temp_proof_of_work = true;
                     Config.im_the_staker = false;
-                    logger.info("Next block is with proof of work");
+                    logger.info("Next block is with proof of work -> "+index);
                 }
             }, date);
         }

@@ -95,6 +95,7 @@ public class Node  implements Comparable<Node>{
     }
 
     public BlockType getBlockByIndex(int index){
+        logger.info("Getting block with index "+ index);
         return blockStub.getBlock(BlockID.newBuilder().setIndex(index).build());
 
     }
