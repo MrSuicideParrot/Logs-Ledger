@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.logging.Logger;
 
 public class Tracker {
-    final static int zeros = 20;
     private String myIP;
     private ServerBuilder serverBuilder;
     private Server server;
@@ -31,7 +30,7 @@ public class Tracker {
     }
 
     public static ChallengeResponse isIdValid(byte[] id, String ip){
-        if((Challenge.countZeros(Challenge.genHash(id)) == zeros) && (!nodeIdMap.containsKey(id))){
+        if((Challenge.countZeros(Challenge.genHash(id)) == Config.id_zeros) && (!nodeIdMap.containsKey(id))){
             ArrayList<byte[]> keys = new ArrayList<byte[]>(nodeIdMap.keySet());
             HashMap<byte[],String> nodes = new HashMap<>();
             SecureRandom r = new SecureRandom();
@@ -48,7 +47,7 @@ public class Tracker {
     }
 
     public void start() throws IOException {
-        server = serverBuilder.addService(new TrackerService(zeros)).build();
+        server = serverBuilder.addService(new TrackerService(Config.id_zeros)).build();
         server.start();
         logger.info("Server started, listening on " + Config.port_tracker);
         Runtime.getRuntime().addShutdownHook(new Thread() {

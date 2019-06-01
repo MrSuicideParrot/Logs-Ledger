@@ -99,7 +99,7 @@ public class MinerWorker implements Runnable{
                                 blockBuilder.setNonce(rand.nextLong());
                                 byte[] hash = blockBuilder.getBlockHash();
                                 int zeros = Challenge.countZeros(hash);
-                                if (zeros >= Config.zeros) {
+                                if (zeros >= Config.block_zeros) {
                                     break;
                                 }
                             }

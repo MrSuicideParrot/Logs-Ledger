@@ -110,7 +110,7 @@ class BlockBuilder implements Signable {
         {
             // Nonce confirm
             //TODO deve depois haver mais merda aqui ¯\_(ツ)_/¯
-            if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+            if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.block_zeros){
                 return false;
             }
         }
@@ -126,7 +126,7 @@ class BlockBuilder implements Signable {
             }
 
             if(Config.temp_proof_of_work ){ //TODO verificar
-                if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+                if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.block_zeros){
                     return false;
                 }
                 else{
@@ -143,7 +143,7 @@ class BlockBuilder implements Signable {
             else{
                 //Caso haja reset
                 if(Config.proof_of_stake && candidateBlock.getBlockSign().getData().getIndex() < Config.initial_work){
-                    if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.zeros){
+                    if(Challenge.countZeros(candidateBlock.getHash().toByteArray()) < Config.block_zeros){
                         return false;
                     }
                     //blockChain.generateNextStaker();

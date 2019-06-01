@@ -14,7 +14,8 @@ public class Config {
     public final static int id_length = 30;
     public static ByteString myID;
     public static String trackerIp = "localhost";
-    public final static int zeros = 20;
+    public final static int id_zeros = 23;
+    public final static int block_zeros = 23;
 
     /* Confiança */
     public static int SPREAD_BLOCK_POINT = -1000; /* Accepted */
