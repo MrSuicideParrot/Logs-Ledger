@@ -35,7 +35,7 @@ public class BlockchainUpdate extends TimerTask {
 
         blockChain.findAndResolveBlockForkMaxLength();
 
-        logger.info("Success");
+        logger.info("Blockchain check succeeded");
         printBlockchain();
 
         //lock.unlock();
@@ -66,14 +66,14 @@ public class BlockchainUpdate extends TimerTask {
                 printBlockchain();
             }
             else{
-                logger.severe("Fork resolv failed with code: "+status);
+                logger.severe("Fork resolve failed with code: "+status);
             }
 
         }
         else {
             if(check == 0) {
                 blockChain.updateBlockChain(); // Caso fique enpancado num caminho certoz
-                logger.info("It's all ok");
+                logger.info("Check successful");
             }
             else{
                 logger.warning("Possible fail");

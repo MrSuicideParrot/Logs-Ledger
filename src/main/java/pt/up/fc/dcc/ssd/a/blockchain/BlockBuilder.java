@@ -151,7 +151,7 @@ class BlockBuilder implements Signable {
                 }
                 // Puro proof of stake
                 logger.info("Index: "+ candidateBlock.getBlockSign().getData().getIndex() );
-                logger.info("No validado -> "+ArrayTools.bytesToHex(candidateBlock.getBlockSign().getData().getNodeID())+"=="+ArrayTools.bytesToHex(Config.staker));
+                logger.info("Node validated -> "+ArrayTools.bytesToHex(candidateBlock.getBlockSign().getData().getNodeID())+"=="+ArrayTools.bytesToHex(Config.staker));
                 if(candidateBlock.getBlockSign().getData().getNodeID().equals(Config.staker)){
                     //blockChain.generateNextStaker();
                     blockChain.setStakerTimer(candidateBlock.getBlockSign().getData().getTimestamp(),index);

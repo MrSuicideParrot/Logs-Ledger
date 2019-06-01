@@ -25,7 +25,7 @@ public class HelloObserver implements StreamObserver<Hello> {
 
     @Override
     public void onError(Throwable throwable) {
-        logger.warning("Erro no hello");
+        logger.warning("Error on hello");
         logger.warning(throwable.toString());
     }
 

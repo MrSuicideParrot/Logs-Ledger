@@ -25,7 +25,7 @@ public class GossipObserver implements StreamObserver<Type.Empty> {
 
     @Override
     public void onError(Throwable throwable) {
-        logger.warning("Erro em gossip "+ ArrayTools.bytesToHex(i.getId()));
+        logger.warning("Error on gossip "+ ArrayTools.bytesToHex(i.getId()));
         //throwable.printStackTrace();
         logger.severe("Node will be removed"+ ArrayTools.bytesToHex(i.getId()));
         net.removeNodes(i.getId(),i);
