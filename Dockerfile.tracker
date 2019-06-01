@@ -1,0 +1,6 @@
+FROM openjdk:11-jre
+
+COPY target/log-ledger-Tracker-jar-with-dependencies.jar /root
+
+WORKDIR /root
+CMD java -jar log-ledger-Tracker-jar-with-dependencies.jar
