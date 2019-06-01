@@ -341,7 +341,7 @@ public class BlockChain {
                     break;
 
                 if(resul != 0){
-                    logger.severe("Falhou sincronização");
+                    logger.severe("Failing sync");
                     return 0;
                 }
                 --index;
@@ -352,7 +352,7 @@ public class BlockChain {
 
         blockChainLock.lock();
         try {
-            logger.info("Vou tirar bloco "+index);
+            logger.info("Removing block "+index);
             // TODO codigo trolha melhorar
             while (true) {
                 this.removeBlock(index);
@@ -535,7 +535,7 @@ public class BlockChain {
                     try {
                         candidate = contact.getBlockByIndex(i);
                     } catch (StatusRuntimeException e) {
-                        logger.warning("Failing contacting node updateBlockChain");
+                        logger.warning("Failing contacting node");
                         logger.warning(ArrayTools.bytesToHex(contact.getId()));
                         logger.warning(i +" " + e.toString());
                     }
@@ -547,7 +547,7 @@ public class BlockChain {
                         else {
                             logger.warning(ArrayTools.bytesToHex(contact.getId()));
                             logger.warning("Index " +i );
-                            logger.severe("Falhou o update BlockChain");
+                            logger.severe("BlockChain update failed");
                         }
                     }
                     /*
@@ -630,7 +630,7 @@ public class BlockChain {
         logger.info("Next staker ->" +  ArrayTools.bytesToHex(min_node.toByteArray()));
 
         if (min_node.equals(Config.myID)){
-            logger.info("It's me Mario!!!");
+            logger.info("I'm the staker");
             Config.im_the_staker = true;
         }
         else{

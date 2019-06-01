@@ -120,9 +120,9 @@ public class Node {
     }
 
     public static void main(String[] args) throws Exception{
-        if(args.length == 0 || args.length > 2){
+        if(args.length != 2){
             logger.severe("No tracker ip on argv");
-            logger.severe("Argv options: \n TrackerIP  ConsneseFlag PoS PoW");
+            logger.severe("Argv options: \n TrackerIP  ConsensusFlag:{PoS,PoW}");
             System.exit(1);
         }
 

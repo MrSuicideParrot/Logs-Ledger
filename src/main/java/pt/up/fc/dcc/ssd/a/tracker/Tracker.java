@@ -40,7 +40,7 @@ public class Tracker {
                 nodes.put(next, (String)nodeIdMap.get(next));
             }
             nodeIdMap.put(id,ip);
-            System.out.println(nodeIdMap);
+//            System.out.println(nodeIdMap);
             return new ChallengeResponse(true, nodes);
         }
         return new ChallengeResponse(false);
@@ -75,7 +75,8 @@ public class Tracker {
 
     public static void main(String [] args) throws Exception  {
         Tracker server = new Tracker();
-        System.out.println(server.myIP);
+        logger.info("Tracker IP: " + server.myIP);
+//        System.out.println(server.myIP);
         server.start();
         server.blockUntilShutdown();
 
