@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+    node:
+        build:
+            context: .
+            dockerfile: Dockerfile.node
+        image: log-node
+        links:
+          - tracker:tracker
+        depends_on:
+          - tracker
+        environment:
+          - TRACKER_IP=tracker
+          - CONSENSUS=PoS
+
+    tracker:
+        build:
+            context: .
+            dockerfile: Dockerfile.tracker
+        image: log-tracker
+        container_name: tracker
